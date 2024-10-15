@@ -1,2 +1,2 @@
-# This is project-3 (Job portal).
+# project-3 (Job portal using AI tech)
 
