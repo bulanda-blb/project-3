@@ -1,0 +1,259 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Job Listings - WorkWise</title>
+  <link rel="stylesheet" href="{% static 'index/css/job-list.css' %}">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+    <!-- Additional Plugins Stylesheet -->
+    
+    <link rel="stylesheet" href="{% static 'css/vendors.css' %}">
+    <!-- Site Main Stylesheet-->
+    <link media="all" rel="stylesheet" href="{% static 'css/jobplugin.css' %}">
+    <!-- Site Theme Colors Stylesheet-->
+    <link media="all" rel="stylesheet" href="{% static 'css/theme-color.css' %}">
+    <link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  integrity="sha512-p2x8RDrx9Nj2dNa+UDGz9Yi4iW6qeCy9jZeNDf836pxo5GFLe3fGJ5yV6HdGADgDp+rU5fE+d7+4JgX2kmXU9g=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+<link
+  href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+  rel="stylesheet"
+/>
+
+</head>
+<body class="jobplugin">
+
+
+{% include 'includes/header.html' %}
+<main class="job-main">
+    {% comment %} <div class="jobplugin__wrapper"> {% endcomment %}
+    
+  <!-- Top Heading Section -->
+  <section class="job-hero">
+    <h1>Find Your Perfect Job</h1>
+    <p>Browse top job opportunities that match your skills and goals.</p>
+  </section>
+
+  <!-- FILTER SECTION -->
+  <section class="job-filter-bar">
+    <form class="job-filter-form" method="POST" action="{% url 'index:jobs_list' %}">
+      {% csrf_token %}
+      <div class="filter-grid">
+        
+        
+        <select name="industry" id="industry" required>
+          <option value="">Select Industry</option>
+          {% for slug, label in industries %}
+            <option value="{{ slug }}">{{ label }}</option>
+          {% endfor %}
+
+        </select>
+
+        <select name="department" id="department" required>
+          <option value="">Select Department</option>
+        </select>
+
+        <select name="work_type" id="work_type" required>
+          <option value="">Select Work Type</option>
+          {% for slug, label in work_types %}
+            <option value="{{ slug }}">{{ label }}</option>
+          {% endfor %}
+
+        </select>
+        <input type="text" name="title" id="title" placeholder="Job Title" required>
+        <input type="text" name="location" id="location" placeholder="Location" required>
+
+        <button type="submit" id="filterBtn" disabled><i class="fas fa-filter"></i> Filter</button>
+        <a href="{% url 'index:jobs_list' %}" class="reset-btn">Reset</a>
+      </div>
+    </form>
+  </section>
+
+
+
+  <!-- Job Grid -->
+  <div class="job-grid-wrapper">
+    <div class="job-grid">
+      {% if jobs %}
+      {% for job in jobs %}
+      <div class="job-card">
+        <!-- Top: Logo & Badge -->
+        <!-- Save button -->
+        <button
+          class="save-btn {% if job.job_id in saved_job_ids %}saved{% endif %}"
+          data-job-id="{{ job.job_id }}"
+          title="Save job">
+          {% if job.job_id in saved_job_ids %}
+            <i class="fas fa-bookmark"></i>
+          {% else %}
+            <i class="far fa-bookmark"></i>
+          {% endif %}
+        </button>
+
+        <div class="job-top">
+          {% if job.employer.company_profile and job.employer.company_profile.logo %}
+            <img
+              src="{{ job.employer.company_profile.logo.url }}"
+              alt="{{ job.employer.company_name }} Logo"
+              class="job-logo"
+            >
+          {% else %}
+          <img src="{% static 'images/company-logo02.jpg' %}" alt="Logo" class="job-logo">
+          {% endif %}
+          <span class="job-type">{% if job.work_type == 'full_time'%}Full Time{% elif job.work_type == 'part_time'%}Part Time{% elif job.work_type == 'internship'%}Internship{% elif job.work_type == 'contract'%}Contract{% endif %} </span>
+        </div>
+
+        <!-- Title + Company -->
+        <p class="job-title">{{ job.title }}</p>
+        <p class="company-name">By {{ job.employer.company_name }}</p>
+
+        <!-- Meta Info -->
+        <div class="job-meta">
+          <p><i class="fas fa-map-marker-alt"></i> {{ job.full_location_address }}</p>
+          <p><i class="fas fa-clock"></i> {{ job.posted_at|timesince }} ago</p>
+          <p><i class="fas fa-money-bill-wave"></i>{% if job.salary_min %}{{ job.salary_min }}-{{job.salary_max}}{% else %}{{job.salary_max}}{% endif %}/{{job.salary_frequency}}</p>
+          <p><i class="fas fa-calendar-day"></i>Till: {{job.application_deadline}}</p>
+        </div>
+
+        <!-- view details Button -->
+        <a href="{% url 'index:job_details' job.job_id %}" class="apply-btn">View Details</a>
+      </div>
+      {% endfor %}
+      {% else %}
+        <p class="no-results">No job posts found matching your criteria.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Pagination -->
+<div class="pagination">
+  {% if jobs.has_previous %}
+    <a href="?page={{ jobs.previous_page_number }}" class="prev">&laquo;</a>
+  {% endif %}
+
+  {% for num in jobs.paginator.page_range %}
+    {% if jobs.number == num %}
+      <a href="?page={{ num }}" class="active">{{ num }}</a>
+    {% else %}
+      <a href="?page={{ num }}">{{ num }}</a>
+    {% endif %}
+  {% endfor %}
+
+  {% if jobs.has_next %}
+    <a href="?page={{ jobs.next_page_number }}" class="next">&raquo;</a>
+  {% endif %}
+</div>
+
+
+
+
+{% comment %} </div> {% endcomment %}
+</main>
+
+{% include 'includes/footer.html' %}
+
+<!-- jQuery Library -->
+<script src="{% static 'js/jquery-3.6.4.min.js' %}"></script>
+<!-- jQuery Plugins File -->
+<script src="{% static 'js/vendor.js' %}"></script>
+<!-- jQuery Functions JS File -->
+<script src="{% static 'js/jquery.main.js' %}"></script>
+<script src="{% static 'index/js/job-grid.js' %}"></script>
+<script id="department-data-json" type="application/json">{{ departments_json|safe }}</script>
+
+<script>
+  const SAVE_JOB_URL = "{% url 'candidate:save_job' %}";
+  const CANDIDATE_ID = "{{ request.session.candidate_id|default:'' }}";
+  // CSRF helper
+  function getCookie(n){let v=null;if(document.cookie){document.cookie.split(';').forEach(c=>{let t=c.trim();if(t.startsWith(n+'='))v=decodeURIComponent(t.slice(n.length+1));});}return v;}
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.save-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      if (!CANDIDATE_ID) {
+        window.location.href = "{% url 'authentication:signup_candidate' %}";
+        return;
+      }
+      const jobId = btn.dataset.jobId;
+      fetch(SAVE_JOB_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ job_id: jobId })
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.status === 'saved') {
+          btn.classList.add('saved');
+          btn.innerHTML = '<i class="fas fa-bookmark"></i>';
+        } else if (data.status === 'unsaved') {
+          btn.classList.remove('saved');
+          btn.innerHTML = '<i class="far fa-bookmark"></i>';
+        } else if (data.redirect) {
+          window.location.href = data.redirect;
+        }
+      });
+    });
+  });
+});
+</script>
+
+<script>
+const departmentData = JSON.parse(document.getElementById("department-data-json").textContent);
+const industrySelect = document.getElementById("industry");
+const departmentSelect = document.getElementById("department");
+const filterBtn = document.getElementById("filterBtn");
+
+function updateDepartments() {
+  const selectedIndustry = industrySelect.value;
+  departmentSelect.innerHTML = '<option value="">Select Department</option>';
+  if (departmentData[selectedIndustry]) {
+    departmentData[selectedIndustry].forEach(dep => {
+      const opt = document.createElement("option");
+      opt.value = dep;
+      opt.textContent = dep.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      departmentSelect.appendChild(opt);
+    });
+  }
+}
+
+function validateForm() {
+  const title = document.getElementById("title").value.trim();
+  const location = document.getElementById("location").value.trim();
+  const ind = industrySelect.value;
+  const dep = departmentSelect.value;
+  const wt = document.getElementById("work_type").value;
+
+  filterBtn.disabled = !(title && location && ind && dep && wt);
+}
+
+industrySelect.addEventListener("change", () => {
+  updateDepartments();
+  validateForm();
+});
+departmentSelect.addEventListener("change", validateForm);
+document.getElementById("title").addEventListener("input", validateForm);
+document.getElementById("location").addEventListener("input", validateForm);
+document.getElementById("work_type").addEventListener("change", validateForm);
+
+</script>
+
+</body>
+</html>

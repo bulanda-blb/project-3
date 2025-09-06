@@ -1,0 +1,187 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{% static 'css/vendors.css' %}">
+    <link media="all" rel="stylesheet" href="{% static 'css/jobplugin.css' %}">
+    <link media="all" rel="stylesheet" href="{% static 'css/theme-color.css' %}">
+  <title>Login</title>
+  <style>
+    
+    .jobplugin__userbox select {
+      width: 40%;
+      margin: 10px 0;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body class="jobplugin">
+  <div class="jobplugin__wrapper">
+    {% include "includes/header.html" %}
+    <main class="jobplugin__main">
+      <div class="jobplugin__container">
+        <div class="jobplugin__userbox">
+          <span class="jobplugin__userbox-bar jobplugin__bg-primary"></span>
+          <h1 class="jobplugin__text-secondary h3">Login</h1>
+
+          <form id="login-form" action="{% url 'auth:login' %}" method="POST">
+            {% csrf_token %}
+
+            <p id="formError" style="color:red; font-size:small; "></p>
+            <!-- Server error -->
+            {% if error %}
+              <p id="loginError" style="color:red;  font-size:small;">{{ error }}</p>
+            {% endif %}
+
+            {% if registered_success %}
+            <p id="successMsg" style="color:green; font-weight:600; font-size:large; margin-bottom:5px;">
+                Registration successful! You can now log in.
+            </p>
+            {% endif %}
+
+            {% if request.GET.reset == '1' %}
+            <p id="resetSuccess" style="color:green; font-weight:600; font-size:large; margin-bottom:5px;">
+                Password reset successful! You can now log in.
+            </p>
+            {% endif %}
+
+            <div class="jobplugin__form">
+              <div class="jobplugin__form-row">
+                <div class="jobplugin__form-field">
+                  <input type="text" id="email" name="email"
+                         placeholder="Username or Email"
+                         value="{{ email }}">
+                </div>
+              </div>
+              <div class="jobplugin__form-row">
+                <div class="jobplugin__form-field">
+                  <input type="password" id="password" name="password"
+                         placeholder="Password (6–16 chars)">
+                </div>
+              </div>
+              <div class="jobplugin__form-row">
+                <div class="jobplugin__form-field">
+                  <select id="accountType" name="account_type"
+                          data-placeholder="Select your account type">
+                    <option value="">Select account type</option>
+                    <option value="employer">Employer</option>
+                    <option value="candidate">Candidate</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <input type="hidden" name="next" value="{{ next }}">
+            <div class="jobplugin__userbox-button">
+              <button type="submit" id="loginBtn"
+                      class="jobplugin__button large jobplugin__bg-primary"
+                      disabled style="opacity:0.5;">
+                Login
+              </button>
+            </div>
+          </form>
+
+          <div class="jobplugin__userbox-seperator"><span>or</span></div>
+          <p class="jobplugin__userbox-textinfo">
+            Forgot password? <a href="{% url 'auth:reset_password'%}">Reset</a>
+          </p>
+          <p class="jobplugin__userbox-textinfo">
+            Don't have an account? <a href="{% url 'auth:signup' %}">Sign Up</a>
+          </p>
+        </div>
+      </div>
+    </main>
+    {% include "includes/footer.html" %}
+  </div>
+
+  <!-- jQuery Library -->
+<script src="{% static 'js/jquery-3.6.4.min.js' %}"></script>
+<!-- jQuery Plugins File -->
+<script src="{% static 'js/vendor.js' %}"></script>
+<!-- jQuery Functions JS File -->
+<script src="{% static 'js/jquery.main.js' %}"></script>
+
+  <script>
+  (function(){
+  const form      = document.getElementById('login-form');
+  const emailEl   = document.getElementById('email');
+  const pwdEl     = document.getElementById('password');
+  const typeEl    = document.getElementById('accountType');
+  const btn       = document.getElementById('loginBtn');
+  const serverErr = document.getElementById('loginError');
+  const clientErr = document.getElementById('formError');
+
+  const emailRe   = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const pwdRe     = /^.{6,16}$/;
+
+  const touched = { email: false, password: false, account_type: false };
+
+  function validate(){
+    const errs = [];
+    if (touched.email && !emailRe.test(emailEl.value.trim())){
+      errs.push('enter a valid email address');
+    }
+    if (touched.password && !pwdRe.test(pwdEl.value)){
+      errs.push('password must be 6–16 characters');
+    }
+    if (touched.account_type && !['employer','candidate'].includes(typeEl.value)){
+      errs.push('please select account type');
+    }
+
+    // Show first client-side error
+    clientErr.textContent = errs[0] || '';
+
+    const allValid =
+      emailRe.test(emailEl.value.trim()) &&
+      pwdRe.test(pwdEl.value) &&
+      ['employer','candidate'].includes(typeEl.value);
+
+    btn.disabled = !allValid;
+    btn.style.opacity = allValid ? '1' : '0.5';
+  }
+
+  // auto-hide server error
+  if (serverErr){
+    setTimeout(()=> serverErr.style.display='none', 10000);
+  }
+
+  // attach listeners
+  emailEl.addEventListener('blur', ()=>{ touched.email = true; validate(); });
+  pwdEl.addEventListener('blur', ()=>{ touched.password = true; validate(); });
+  typeEl.addEventListener('change', ()=>{ touched.account_type = true; validate(); });
+
+  [emailEl,pwdEl].forEach(el=>
+    el.addEventListener('input', ()=> touched[el.id] && validate())
+  );
+
+  // initial run
+  validate();
+})();
+  </script>
+
+  <script>
+  // Hide registration banner after 10s
+  const successMsg = document.getElementById('successMsg');
+  if (successMsg) {
+    setTimeout(() => { successMsg.style.display = 'none'; }, 10000);
+  }
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const msg = document.getElementById("resetSuccess");
+  if (msg) setTimeout(() => { msg.style.display = "none"; }, 10000);
+});
+</script>
+
+
+</body>
+</html>

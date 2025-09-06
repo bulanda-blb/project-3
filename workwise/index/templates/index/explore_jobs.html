@@ -1,0 +1,117 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Explore {{ display_label }} – WorkWise</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{% static 'css/vendors.css' %}">
+    <link media="all" rel="stylesheet" href="{% static 'css/jobplugin.css' %}">
+    <link media="all" rel="stylesheet" href="{% static 'css/theme-color.css' %}">
+  <link rel="stylesheet" href="{% static 'index/css/job-list.css' %}">
+  <link rel="stylesheet" href="{% static 'index/css/explore.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  integrity="sha512-p2x8RDrx9Nj2dNa+UDGz9Yi4iW6qeCy9jZeNDf836pxo5GFLe3fGJ5yV6HdGADgDp+rU5fE+d7+4JgX2kmXU9g=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+<link
+  href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+  rel="stylesheet"
+/>
+
+</head>
+<body class="jobplugin">
+  {% include 'includes/header.html' %}
+
+  <main class="job-main">
+    <!-- Search Header -->
+    <section class="explore-hero">
+      <h1>Explore {{ filter_type|capfirst }}: {{ display_label }}</h1>
+      <form class="explore-search-form" method="GET" action="">
+        <input
+          type="text"
+          name="q"
+          value="{{ search_keyword }}"
+          placeholder="Search {{ filter_type }}"
+          required
+        >
+        <button type="submit"><i class="fas fa-search"></i></button>
+        <a
+            href="{% url 'index:explore_jobs' filter_type keyword %}"
+            class="reset-btn"
+            title="Reset search"
+        >Reset</a>
+      </form>
+    </section>
+
+    <!-- Job Cards (unchanged) -->
+    <div class="job-grid-wrapper">
+      <div class="job-grid">
+        {% if jobs %}
+          {% for job in jobs %}
+            <div class="job-card">
+              <!-- Save button, logo, type… same as your existing card markup -->
+              <button class="save-btn{% if job.job_id in saved_job_ids %} saved{% endif %}" data-job-id="{{ job.job_id }}">
+                <i class="{% if job.job_id in saved_job_ids %}fas{% else %}far{% endif %} fa-bookmark"></i>
+              </button>
+              <div class="job-top">
+                {% if job.employer.company_profile.logo %}
+                  <img src="{{ job.employer.company_profile.logo.url }}" alt="" class="job-logo">
+                {% else %}
+                  <img src="{% static 'images/company-logo02.jpg' %}" alt="" class="job-logo">
+                {% endif %}
+                <span class="job-type">{{ job.work_type|capfirst }}</span>
+              </div>
+              <p class="job-title">{{ job.title }}</p>
+              <p class="company-name">By {{ job.employer.company_name }}</p>
+              <div class="job-meta">
+                <p><i class="fas fa-map-marker-alt"></i> {{ job.full_location_address }}</p>
+                <p><i class="fas fa-clock"></i> {{ job.posted_at|timesince }} ago</p>
+                <p><i class="fas fa-money-bill-wave"></i>
+                  {% if job.salary_min %}{{ job.salary_min }}–{{ job.salary_max }}{% else %}{{ job.salary_max }}{% endif %}/{{ job.salary_frequency }}
+                </p>
+                <p><i class="fas fa-calendar-day"></i> Till: {{ job.application_deadline }}</p>
+              </div>
+              <a href="" class="apply-btn">View Details</a>
+            </div>
+          {% endfor %}
+        {% else %}
+          <p class="no-results">No jobs found.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Pagination (with q param) -->
+    <div class="pagination">
+      {% if jobs.has_previous %}
+        <a href="?q={{ search_keyword }}&page={{ jobs.previous_page_number }}">&laquo;</a>
+      {% endif %}
+      {% for num in jobs.paginator.page_range %}
+        <a href="?q={{ search_keyword }}&page={{ num }}" class="{% if jobs.number == num %}active{% endif %}">{{ num }}</a>
+      {% endfor %}
+      {% if jobs.has_next %}
+        <a href="?q={{ search_keyword }}&page={{ jobs.next_page_number }}">&raquo;</a>
+      {% endif %}
+    </div>
+  </main>
+
+  {% include 'includes/footer.html' %}
+
+  <!-- jQuery Library -->
+<script src="{% static 'js/jquery-3.6.4.min.js' %}"></script>
+<!-- jQuery Plugins File -->
+<script src="{% static 'js/vendor.js' %}"></script>
+<!-- jQuery Functions JS File -->
+<script src="{% static 'js/jquery.main.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,122 @@
+{% extends 'candidate_profile/candidate_base.html' %}
+{% load static %}
+
+{% block head %}
+<title> saved jobs</title>
+<link rel="stylesheet" href="{% static 'index/css/job-list.css' %}">
+{% endblock head %}
+
+{% block content %}
+  <h1>Your Saved Job Posts</h1>
+
+  <form method="get" class="filter-form">
+    <div class="filters">
+      <label for="sortSelect">Sort:</label>
+      <select name="sort" id="sortSelect" onchange="this.form.submit()">
+        <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>
+          Newest First
+        </option>
+        <option value="oldest" {% if current_sort == 'oldest' %}selected{% endif %}>
+          Oldest First
+        </option>
+      </select>
+    </div>
+  </form>
+
+  {% if page_obj %}
+    <div class="job-grid-wrapper">
+      <div class="job-grid">
+        {% for saved in page_obj %}
+          {% with job=saved.job %}
+            <div class="job-card">
+              <!-- Unsave Button -->
+              <button
+                class="save-btn saved"
+                data-job-id="{{ job.job_id }}"
+                title="Unsave job">
+                <i class="fas fa-bookmark"></i>
+              </button>
+
+              <!-- Logo & Type -->
+              <div class="job-top">
+                {% if job.employer.company_profile.logo %}
+                  <img src="{{ job.employer.company_profile.logo.url }}"
+                       alt="" class="job-logo">
+                {% else %}
+                  <img src="{% static 'images/company-logo02.jpg' %}"
+                       alt="" class="job-logo">
+                {% endif %}
+                <span class="job-type">{{ job.work_type|capfirst }}</span>
+              </div>
+
+              <!-- Title & Company -->
+              <p class="job-title">{{ job.title }}</p>
+              <p class="company-name">By {{ job.employer.company_name }}</p>
+
+              <!-- Meta -->
+              <div class="job-meta">
+                <p><i class="fas fa-map-marker-alt"></i> {{ job.full_location_address }}</p>
+                <p><i class="fas fa-clock"></i> {{ job.posted_at|timesince }} ago</p>
+                <p><i class="fas fa-money-bill-wave"></i>
+                  {% if job.salary_min %}{{ job.salary_min }}–{{ job.salary_max }}{% else %}{{ job.salary_max }}{% endif %}/{{ job.salary_frequency }}
+                </p>
+                <p><i class="fas fa-calendar-day"></i> Till: {{ job.application_deadline }}</p>
+              </div>
+
+              <!-- View Details -->
+              <a href="{% url 'index:job_details' job.job_id %}" class="apply-btn">
+                View Details
+              </a>
+            </div>
+          {% endwith %}
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      {% if page_obj.has_previous %}
+        <a href="?sort={{ current_sort }}&page={{ page_obj.previous_page_number }}">&laquo;</a>
+      {% endif %}
+      {% for num in page_obj.paginator.page_range %}
+        <a href="?sort={{ current_sort }}&page={{ num }}"
+           class="{% if page_obj.number == num %}active{% endif %}">
+          {{ num }}
+        </a>
+      {% endfor %}
+      {% if page_obj.has_next %}
+        <a href="?sort={{ current_sort }}&page={{ page_obj.next_page_number }}">&raquo;</a>
+      {% endif %}
+    </div>
+
+  {% else %}
+    <p>You have no saved jobs.</p>
+  {% endif %}
+{% endblock %}
+
+{% block script %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.save-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const jobId = btn.dataset.jobId;
+      fetch("{% url 'candidate:save_job' %}", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': document.cookie.split('csrftoken=')[1].split(';')[0]
+        },
+        body: JSON.stringify({ job_id: jobId })
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.status==='unsaved') {
+          // remove the card
+          btn.closest('.job-card').remove();
+        }
+      });
+    });
+  });
+});
+</script>
+{% endblock %}

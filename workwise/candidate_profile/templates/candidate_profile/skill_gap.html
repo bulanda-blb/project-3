@@ -1,0 +1,56 @@
+{% extends 'candidate_profile/candidate_base.html' %}
+{% load static %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'candidate_profile/css/skill_gap.css' %}">
+  <title>Skill Gap Analysis</title>
+{% endblock head %}
+
+{% block content %}
+<h1 class="page-title">Skill Gap Analysis</h1>
+
+<form id="skillGapForm" method="post">
+  {% csrf_token %}
+  <label>Your Skills (comma-separated)</label>
+  <textarea id="skillsInput">{{ initial_skills }}</textarea>
+
+  <label>Job Title</label>
+  <input type="text" id="jobTitleInput" value="{{ initial_title }}">
+
+  <label>Industry</label>
+  <select id="industrySelect">
+    <option value="">-- select industry --</option>
+    {% for ind in industries %}
+      <option value="{{ ind }}" {% if ind == initial_industry %}selected{% endif %}>
+        {{ ind|title|cut:"_" }}
+      </option>
+    {% endfor %}
+  </select>
+
+  <label>Department</label>
+  <select id="departmentSelect">
+    <option value="">-- select department --</option>
+  </select>
+
+  <label>Years of Experience</label>
+  <input type="number" id="experienceInput" min="0" value="{{ initial_experience }}">
+
+  <button id="analyzeBtn" disabled>Analyze Skill Gap</button>
+</form>
+
+<div id="loader" class="loader hidden">
+  <div class="spinner"></div>
+  <p>Analyzing…</p>
+</div>
+
+<div id="results"></div>
+{% endblock content %}
+
+{% block script %}
+  <!-- expose department map and initial department to JS -->
+  <script>
+    window.DEP_MAP = {{ departments_json|safe }};
+    window.initialDepartment = "{{ initial_department }}";
+  </script>
+  <script src="{% static 'candidate_profile/js/skill_gap.js' %}"></script>
+{% endblock script %}

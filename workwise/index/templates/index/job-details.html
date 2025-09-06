@@ -1,0 +1,300 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{% static 'css/vendors.css' %}">
+    <link media="all" rel="stylesheet" href="{% static 'css/jobplugin.css' %}">
+    <link media="all" rel="stylesheet" href="{% static 'css/theme-color.css' %}">
+
+  <title>{{ job.title }} – {{ job.employer.company_name }}</title>
+  <link rel="stylesheet" href="{% static 'index/css/job-detail.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet/dist/leaflet.css"
+/>
+<link
+  href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+  rel="stylesheet"
+/>
+
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  integrity="sha512-p2x8RDrx9Nj2dNa+UDGz9Yi4iW6qeCy9jZeNDf836pxo5GFLe3fGJ5yV6HdGADgDp+rU5fE+d7+4JgX2kmXU9g=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+
+</head>
+<body class="jobplugin">
+  {% include 'includes/header.html' %}
+
+  <main class="job-detail">
+    <section class="job-detail-header">
+      <div class="logo">
+        {% if job.employer.company_profile.logo %}
+          <img src="{{ job.employer.company_profile.logo.url }}" alt="{{ job.employer.company_name }} Logo">
+        {% else %}
+          <img src="{% static 'images/default-logo.png' %}" alt="Default Logo">
+        {% endif %}
+      </div>
+      <div class="info">
+        <h1>{{ job.title }}</h1>
+        <h2>{{ job.employer.company_name }}</h2>
+        <p class="meta">
+          {{ job.industry|cut:"_"|title }} &bull;
+          {{ job.department|cut:"_"|title }} &bull;
+          {{ job.work_type|capfirst }}
+        </p>
+
+        <p class="location-type">
+          {{ job.location_type|capfirst }} — {{ job.full_location_address }}
+        </p>
+      </div>
+    </section>
+
+    <div class="job-detail-body">
+      <!-- Sidebar with key details & map -->
+      <aside class="job-sidebar">
+        <div class="details-card">
+          <h3>Job Details</h3>
+          <ul>
+            <li><strong>Job ID:</strong> {{ job.job_id }}</li>
+            <li><strong>Deadline:</strong> {{ job.application_deadline }}</li>
+            <li><strong>Positions:</strong> {{ job.num_candidates_required }}</li>
+            <li><strong>Experience:</strong> {{ job.experience_min }}–{{ job.experience_max }} years ({{ job.experience_level|capfirst }})</li>
+            <li>
+              <strong>Salary:</strong>
+              {% if job.salary_type == 'fixed' %}
+                Fixed {{ job.salary_max }} / {{ job.salary_frequency }}
+              {% else %}
+                {{ job.salary_min }}–{{ job.salary_max }} / {{ job.salary_frequency }} (Negotiable)
+              {% endif %}
+            </li>
+            <li><strong>Gender Requirement:</strong> {{ job.gender_requirement|cut:"_"|capfirst }}</li>
+            <li><strong>Contact Email:</strong> <a href="mailto:{{ job.contact_email }}">{{ job.contact_email }}</a></li>
+            <li><strong>Posted At:</strong> {{ job.posted_at|date:"M j, Y" }}</li>
+            <li><strong>Active:</strong> {{ job.is_active|yesno:"Yes,No" }}</li>
+          </ul>
+          {% if has_applied %}
+            <p class="applied-msg">✅ You have already applied. Check your dashboard for status.</p>
+          {% else %}
+          <div class="apply-box" id="apply-btn">
+            <a href="#" class="apply-btn">Apply for this Job</a>
+          </div>
+          {% if error %}<p class="error">{{ error }}</p>{% endif %}
+          
+          <!-- Modal Form -->
+          <div id="apply-modal" class="modal">
+            <div class="modal-content">
+              <span class="modal-close">&times;</span>
+              <h3>Upload Cover Letter</h3>
+              <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="file"
+                      name="cover_letter"
+                      id="cover_letter"
+                      accept=".pdf,.doc,.docx,image/*"
+                      required>
+                <div id="file-preview"></div>
+                <div id="apply-error" class="apply-error"></div>
+                
+                <div class="modal-actions">
+                  <button type="submit" class="apply-confirm">Confirm Apply</button>
+                  <button type="button" class="apply-cancel">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- Apply Confirmation Modal -->
+          <div id="apply-modal" class="modal">
+            <div class="modal-content">
+              <span id="apply-close" class="modal-close">&times;</span>
+              <h3>Confirm Application</h3>
+              <p>Please upload your cover letter (PDF, DOC, DOCX, JPG/PNG). Max 2MB.</p>
+              <input type="file" id="cover-letter-input" accept=".pdf,.doc,.docx,image/*">
+              <div id="apply-error" class="apply-error"></div>
+              <button id="apply-confirm" class="apply-confirm" disabled>Apply</button>
+              <button id="apply-cancel"  class="apply-cancel">Cancel</button>
+            </div>
+          </div>
+
+        </div>
+        <div class="map-card">
+          <h3>Office Location</h3>
+          <div id="job-map" style="height: 300px; border: 1px solid #ccc;"></div>
+        </div>
+
+      </aside>
+
+      <!-- Main content: description, lists -->
+      <section class="job-content">
+        <div class="section">
+          <h3>Description</h3>
+          <p>{{ job.description }}</p>
+        </div>
+        <div class="section">
+          <h3>Requirements</h3>
+          <ul>
+            {% for req in job.requirements %}
+              <li>{{ req }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="section">
+          <h3>Preferred Skills</h3>
+          <ul>
+            {% for skill in job.preferred_skills %}
+              <li>{{ skill }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="section">
+          <h3>Languages</h3>
+          <ul>
+            {% for lang in job.languages %}
+              <li>{{ lang }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="section">
+          <h3>Benefits</h3>
+          <ul>
+            {% for ben in job.benefits %}
+              <li>{{ ben }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  {% include 'includes/footer.html' %}
+  <!-- jQuery Library -->
+<script src="{% static 'js/jquery-3.6.4.min.js' %}"></script>
+<!-- jQuery Plugins File -->
+<script src="{% static 'js/vendor.js' %}"></script>
+<!-- jQuery Functions JS File -->
+<script src="{% static 'js/jquery.main.js' %}"></script>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Pull in the coordinates from Django
+    const lat = {{ job.map_location.lat|default:0 }};
+    const lng = {{ job.map_location.lng|default:0 }};
+    // Create the map
+    const map = L.map('job-map').setView([lat, lng], 15);
+    // Use OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+    // Put a marker at the office
+    L.marker([lat, lng]).addTo(map);
+  });
+</script>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const applyBtn     = document.getElementById('apply-btn');
+  const modal        = document.getElementById('apply-modal');
+  const closeBtn     = modal.querySelector('.modal-close');
+  const cancelBtn    = modal.querySelector('.apply-cancel');
+  const fileInput    = document.getElementById('cover_letter');
+  const preview      = document.getElementById('file-preview');
+  const errorDiv     = document.getElementById('apply-error');
+  const confirmBtn   = modal.querySelector('.apply-confirm');
+
+  // initialize confirm button disabled
+  confirmBtn.disabled = true;
+  confirmBtn.style.opacity = '0.6';
+
+  // open & close handlers
+  applyBtn.addEventListener('click', e => {
+    e.preventDefault();
+    modal.style.display = 'flex';
+  });
+  [closeBtn, cancelBtn].forEach(btn => {
+    btn.addEventListener('click', () => {
+      modal.style.display = 'none';
+      resetModal();
+    });
+  });
+
+  // reset modal state
+  function resetModal() {
+    fileInput.value = '';
+    preview.innerHTML = '';
+    errorDiv.textContent = '';
+    confirmBtn.disabled = true;
+    confirmBtn.style.opacity = '0.6';
+  }
+
+  // file validation & preview
+  fileInput.addEventListener('change', () => {
+    preview.innerHTML = '';
+    errorDiv.textContent = '';
+    const f = fileInput.files[0];
+    if (!f) {
+      confirmBtn.disabled = true;
+      confirmBtn.style.opacity = '0.6';
+      return;
+    }
+    // size check
+    if (f.size > 2 * 1024 * 1024) {
+      errorDiv.textContent = 'File must be 2MB or smaller.';
+      confirmBtn.disabled = true;
+      confirmBtn.style.opacity = '0.6';
+      return;
+    }
+    // type check
+    const allowed = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'image/png',
+      'image/jpeg'
+    ];
+    if (!allowed.includes(f.type)) {
+      errorDiv.textContent = 'Invalid file type.';
+      confirmBtn.disabled = true;
+      confirmBtn.style.opacity = '0.6';
+      return;
+    }
+    // preview
+    if (f.type.startsWith('image/')) {
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(f);
+      img.style.maxWidth = '200px';
+      img.style.maxHeight = '200px';
+      preview.appendChild(img);
+    } else if (f.type === 'application/pdf') {
+      const obj = document.createElement('object');
+      obj.data = URL.createObjectURL(f);
+      obj.type = 'application/pdf';
+      obj.width = '200';
+      obj.height = '260';
+      preview.appendChild(obj);
+    } else {
+      preview.textContent = f.name;
+    }
+    // enable confirm
+    confirmBtn.disabled = false;
+    confirmBtn.style.opacity = '1';
+  });
+});
+</script>
+
+</body>
+</html>

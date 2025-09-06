@@ -1,0 +1,72 @@
+{% extends 'employer_profile/employer_base.html' %}
+{% load static %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'employer_profile/css/applications.css' %}">
+<title>Applications for {{ job.title }}</title>
+{% endblock head %}
+
+{% block content %}
+<div class="applications-page">
+  <h2>Applications for&nbsp;<em>{{ job.title }}</em></h2>
+
+  <!-- Sort form -->
+  <form id="sort-form" method="get" class="sort-form">
+    <label for="sort-select">Sort by:</label>
+    <select name="sort" id="sort-select">
+    <option value=""     {% if not sort %}selected{% endif %}>Newest First</option>
+    <option value="old"  {% if sort == 'old' %}selected{% endif %}>Oldest First</option>
+    {% comment %} <option value="ranked"{% if sort == 'ranked' %}selected{% endif %}>Ranked</option> {% endcomment %}
+    <option value="processing"  {% if sort == 'processing' %}selected{% endif %}>Processing</option>
+    <option value="rejected"{% if sort == 'rejected' %}selected{% endif %}>Rejected</option>
+    </select>
+    <!-- Premium-only “Ranked” button -->
+  <button type="submit" name="sort" value="ranked" class="btn-ranked" title="Ranked (Premium)">
+    <i class="fas fa-crown " style="color:#DAA520;font-size:30px;"></i> <span class="rank-text">CV Ranking</span>
+  </button>
+  </form>
+  
+  {% if page_obj %}
+    <div class="applications-grid">
+      {% for app in page_obj %}
+        <div class="application-card">
+          <h3>{{ app.candidate.first_name }} {{ app.candidate.last_name }}</h3>
+          <p class="sub">
+            Applied on {{ app.applied_at|date:"M j, Y, P" }}
+          </p>
+          <p>Status: <strong>{{ app.get_status_display }}</strong></p>
+          <p>
+            <a href="{% url 'employer:application_detail' app.id %}">
+              View Details
+            </a>
+          </p>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}&sort={{ sort }}">&laquo; Prev</a>
+      {% endif %}
+      <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}&sort={{ sort }}">Next &raquo;</a>
+      {% endif %}
+    </div>
+  {% else %}
+    <p class="no-applications">No applications yet.</p>
+  {% endif %}
+</div>
+{% endblock content %}
+
+{% block script %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+  const select = document.getElementById('sort-select');
+  select.addEventListener('change', () => {
+    document.getElementById('sort-form').submit();
+  });
+});
+</script>
+{% endblock script %}

@@ -1,0 +1,85 @@
+{% extends 'candidate_profile/candidate_base.html' %}
+{% load static %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'candidate_profile/css/premium_recommendations.css' %}">
+  <title>Premium Recommendations</title>
+{% endblock head %}
+
+{% block content %}
+  <h1 class="page-title">Your Personalized Jobs Recommendation</h1>
+
+  <form method="get" class="filter-form">
+    <label for="sortSelect">Sort by:</label>
+    <select name="sort" id="sortSelect" onchange="this.form.submit()">
+      <option value="recommended" {% if current_sort == 'recommended' %}selected{% endif %}>
+        Recommended
+      </option>
+      <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>
+        Newest First
+      </option>
+      <option value="oldest" {% if current_sort == 'oldest' %}selected{% endif %}>
+        Oldest First
+      </option>
+    </select>
+  </form>
+
+  <div class="job-grid">
+    {% for item in recommendations %}
+      {% with job=item.job %}
+      <div class="job-card premium">
+        <div class="card-header">
+          {% if job.employer.company_profile.logo %}
+            <img src="{{ job.employer.company_profile.logo.url }}"
+                 alt="{{ job.employer.company_name }} Logo"
+                 class="company-logo">
+          {% else %}
+            <img src="{% static 'images/default-logo.png' %}"
+                 alt="Logo" class="company-logo">
+          {% endif %}
+          <h2>{{ job.title }}</h2>
+          <p class="company">{{ job.employer.company_name }}</p>
+        </div>
+
+        <div class="card-body">
+          <p><strong>Posted:</strong> {{ job.posted_at|date:"M j, Y" }}</p>
+          
+            <p><strong>Distance:</strong> {{ item.distance|floatformat:1 }} km</p>
+          
+          <p><strong>Match Skills:</strong> {{ item.match_count }}</p>
+          <p class="location"><i class="fas fa-map-marker-alt"></i>
+            {{ job.full_location_address }}
+          </p>
+          <p class="salary">
+            <i class="fas fa-money-bill-wave"></i>
+            {{ job.salary_min }}–{{ job.salary_max }} / {{ job.salary_frequency }}
+          </p>
+        </div>
+
+        <div class="card-footer">
+          <a href="{% url 'candidate:application_detail' job.job_id %}"
+             class="details-btn">
+            View Details
+          </a>
+        </div>
+      </div>
+      {% endwith %}
+    {% endfor %}
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination">
+    {% if recommendations.has_previous %}
+      <a href="?sort={{ current_sort }}&page={{ recommendations.previous_page_number }}">&laquo;</a>
+    {% endif %}
+    {% for num in recommendations.paginator.page_range %}
+      <a href="?sort={{ current_sort }}&page={{ num }}"
+         class="{% if recommendations.number == num %}active{% endif %}">
+        {{ num }}
+      </a>
+    {% endfor %}
+    {% if recommendations.has_next %}
+      <a href="?sort={{ current_sort }}&page={{ recommendations.next_page_number }}">&raquo;</a>
+    {% endif %}
+  </div>
+{% endblock content %}

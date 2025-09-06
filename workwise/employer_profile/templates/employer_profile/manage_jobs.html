@@ -1,0 +1,136 @@
+{% extends 'employer_profile/employer_base.html' %}
+{% load static %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'employer_profile/css/manage_jobs.css' %}">
+  <title>Manage Your Job Posts</title>
+{% endblock head %}
+
+{% block content %}
+<h1 class="page-title">Manage Your Job Posts</h1>
+<p class="filter-instruction">
+  Use the controls below to search, filter by status, and sort your postings:
+</p>
+
+<div class="manage-jobs-toolbar">
+  <input type="text" id="search-input" placeholder="🔍 Search by title..." class="search-input">
+  <label for="filter-status" class="filter-label">Status:</label>
+  <select id="filter-status" class="filter-select">
+    <option value="">All</option>
+    <option value="active">Active</option>
+    <option value="expired">Expired</option>
+    <option value="deactivated">Deactivated</option>
+  </select>
+  <label for="sort-by" class="filter-label">Sort by:</label>
+  <select id="sort-by" class="filter-select">
+    <option value="posted_desc">Newest Posted</option>
+    <option value="posted_asc">Oldest Posted</option>
+    <option value="deadline_asc">Nearest Deadline</option>
+    <option value="deadline_desc">Farthest Deadline</option>
+    <option value="apps_desc">Most Applications</option>
+    <option value="apps_asc">Fewest Applications</option>
+  </select>
+</div>
+
+<script id="all-jobs-data" type="application/json">
+  {{ all_jobs_json|safe }}
+</script>
+
+<div id="jobs-container" class="jobs-grid">
+  {% for job in jobs %}
+    <div class="job-card" data-status="{{ job.status }}" data-posted="{{ job.posted_at_ts }}" data-deadline="{{ job.application_deadline }}">
+      <div class="card-header">
+        <h2 class="job-title">{{ job.title }}</h2>
+        <div class="job-tags">
+          <span class="tag">{{ job.department }}</span>
+          <span class="tag">{{ job.work_type }}</span>
+          <span class="tag">{{ job.num_candidates_required }} Vacancy{% if job.num_candidates_required > 1 %}ies{% endif %}</span>
+          {% comment %} <span class="tag tag-apps"> 30 Applications</span> {% endcomment %}
+          <a href="{% url 'employer:job_applications' job.job_id %}" style="text-decoration:none;"><span class="tag tag-apps">{{ job.applications_count }} Application{% if job.applications_count != 1 %}s{% endif %}</span></a> 
+          
+        </div>
+      </div>
+      <div class="card-body">
+        <span class="badge status-{{ job.status }}">{{ job.status|capfirst }}</span>
+        <div class="meta-line">
+          <small class="meta-label">Posted:</small>
+          <small class="meta-value">{{ job.posted_at|timesince }} ago</small>
+        </div>
+        <div class="meta-line">
+          <small class="meta-label">Deadline:</small>
+          <small class="meta-value">
+            {{ job.application_deadline }}
+            <span class="days-left">({{ job.days_left }} days left)</span>
+          </small>
+        </div>
+      </div>
+      <div class="card-actions">
+        {% if job.status == 'active' %}
+            <a href="{% url 'employer:edit_job' job_id=job.job_id %}"  class="btn btn-edit">Edit</a>
+            <form method="post" action="{% url 'employer:job_deactivate' job.job_id %}" class="deactivate-form" style="display:inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-deactivate">Deactivate</button>
+            </form>
+            {% else %}
+            <button data-id="{{ job.job_id }}" class="btn btn-duplicate">Duplicate</button>
+        {% endif %}
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+<!-- Confirmation Modal -->
+<div id="confirm-modal" class="modal">
+  <div class="modal-content">
+    <p>Are you sure you want to deactivate this job post?</p>
+    <div class="modal-buttons">
+      <button id="confirm-yes" class="btn btn-confirm">Yes, Deactivate</button>
+      <button id="confirm-no"  class="btn btn-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="pagination">
+  {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}" class="page-btn">&laquo; Prev</a>
+  {% endif %}
+  <span class="page-info">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+  {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}" class="page-btn">Next &raquo;</a>
+  {% endif %}
+</div>
+
+
+<script>
+    
+document.addEventListener('DOMContentLoaded', () => {
+  const modal     = document.getElementById('confirm-modal');
+  const btnYes    = document.getElementById('confirm-yes');
+  const btnNo     = document.getElementById('confirm-no');
+  let activeForm  = null;
+
+  document.querySelectorAll('.deactivate-form button[type="submit"]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      activeForm = btn.closest('form');
+      modal.classList.add('active');
+    });
+  });
+
+  btnNo.addEventListener('click', () => {
+    activeForm = null;
+    modal.classList.remove('active');
+  });
+
+  btnYes.addEventListener('click', () => {
+    if (activeForm) activeForm.submit();
+  });
+});
+
+</script>
+
+{% endblock content %}
+
+{% block script %}
+  <script src="{% static 'employer_profile/js/manage_jobs.js' %}"></script>
+{% endblock script %}

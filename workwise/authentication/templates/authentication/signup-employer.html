@@ -1,0 +1,224 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{% static 'css/vendors.css' %}">
+    <link media="all" rel="stylesheet" href="{% static 'css/jobplugin.css' %}">
+    <link media="all" rel="stylesheet" href="{% static 'css/theme-color.css' %}">
+  
+    <title>Signup Employer</title>
+</head>
+<body class="jobplugin">
+  <div class="jobplugin__wrapper">
+    {% include "includes/header.html" %}
+    <main class="jobplugin__main">
+      <!-- … other wrappers … -->
+      <div class="jobplugin__userbox">
+        <span class="jobplugin__userbox-bar jobplugin__bg-primary"></span>
+        <h1 class="jobplugin__text-secondary h3">Sign Up To Post Work</h1>
+
+        <form id="employer-signup-form" action="{% url 'auth:signup_employer' %}" method="post">
+          {% csrf_token %}
+
+          <!-- Error display placeholder -->
+          <p id="form-error-message" style="color:red; font-size:small; margin-bottom:10px;"></p>
+<!-- Error display placeholder -->
+                            <p id="form-error-message" style="color: red; font-size: small; margin-bottom: 5px;"></p>
+                            {% if errors %}
+                                <ul id="server-errors" style="color: red; font-size: small; margin-bottom:5px;">
+                                {% for err in errors %}
+                                    <li>{{ err }}</li>
+                                {% endfor %}
+                                </ul>
+                                <script>
+                                setTimeout(() => {
+                                    const el = document.getElementById('server-errors');
+                                    if (el) el.style.display = 'none';
+                                }, 10000);  // hide after 10 seconds
+                                </script>
+                            {% endif %}
+          
+
+          <div class="jobplugin__form">
+            <!-- Company Name -->
+            <div class="jobplugin__form-row">
+              <div class="jobplugin__form-field">
+                <input type="text" name="company_name"
+                       placeholder="Company or Institute Name"
+                       value="{{ form_data.company_name }}">
+              </div>
+            </div>
+            <!-- Representative Name -->
+            <div class="jobplugin__form-row">
+              <div class="jobplugin__form-field">
+                <input type="text" name="representative_name"
+                       placeholder="Representative Name"
+                       value="{{ form_data.representative_name }}">
+              </div>
+            </div>
+            <!-- Email -->
+            <div class="jobplugin__form-row">
+              <div class="jobplugin__form-field">
+                <input type="email" name="email"
+                       placeholder="Email Address"
+                       value="{{ form_data.email }}">
+              </div>
+            </div>
+            <!-- Password -->
+            <div class="jobplugin__form-row">
+              <div class="jobplugin__form-field">
+                <input type="password" name="password"
+                       placeholder="Password (6–16 chars)">
+              </div>
+            </div>
+            <!-- Confirm Password -->
+            <div class="jobplugin__form-row">
+              <div class="jobplugin__form-field">
+                <input type="password" name="confirm_password"
+                       placeholder="Confirm Password">
+              </div>
+            </div>
+            <!-- Email Notify -->
+            <div class="jobplugin__form-row">
+              <div class="jobplugin__form-field">
+                <label class="jobplugin__form-checkbox">
+                  <input type="checkbox" name="email_notify"
+                         {% if form_data.email_notify %}checked{% endif %}>
+                  <span class="jobplugin__form-checkbox__btn"></span>
+                </label>
+                <span class="label-text">
+                  Send me helpful emails to find rewarding candidates and CVs.
+                </span>
+              </div>
+            </div>
+            <!-- Agree Terms -->
+            <div class="jobplugin__form-row">
+              <div class="jobplugin__form-field">
+                <label class="jobplugin__form-checkbox">
+                  <input type="checkbox" name="agree_terms"
+                         {% if form_data.agree_terms %}checked{% endif %}>
+                  <span class="jobplugin__form-checkbox__btn"></span>
+                </label>
+                <span class="label-text">
+                  Yes, I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="jobplugin__userbox-button">
+            <button type="submit"
+                    class="jobplugin__button large jobplugin__bg-primary hover:jobplugin__bg-secondary"
+                    disabled style="opacity:0.5;">
+              Join as an Employer
+            </button>
+          </div>
+        </form>
+
+        <p class="jobplugin__userbox-textinfo">
+          Already have an account? <a href="{% url 'auth:login'%}">Log In</a>
+        </p>
+      </div>
+    </main>
+    {% include "includes/footer.html" %}
+  </div>
+
+  <!-- JS dependencies -->
+  <script src="{% static 'js/jquery-3.6.4.min.js' %}"></script>
+  <script src="{% static 'js/vendor.js' %}"></script>
+  <script src="{% static 'js/jquery.main.js' %}"></script>
+
+  <!-- Frontend validation for Employer Signup -->
+  <script>
+  (function(){
+    const form       = document.getElementById('employer-signup-form');
+    const company    = form.querySelector("input[name='company_name']");
+    const repName    = form.querySelector("input[name='representative_name']");
+    const email      = form.querySelector("input[name='email']");
+    const password   = form.querySelector("input[name='password']");
+    const confirmPwd = form.querySelector("input[name='confirm_password']");
+    const agree      = form.querySelector("input[name='agree_terms']");
+    const submitBtn  = form.querySelector("button[type='submit']");
+    const errorP     = document.getElementById('form-error-message');
+
+    const companyNameRe = /^[A-Za-z0-9 ]+$/;
+    const nameRe     = /^[A-Za-z ]+$/;
+    const emailRe    = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const pwdRe      = /^(?=.*\d)(?=.*[!@#$%^&*]).{6,16}$/;
+
+    // Track touched fields
+    const touched = {
+      company_name: false,
+      representative_name: false,
+      email: false,
+      password: false,
+      confirm_password: false,
+      agree_terms: false
+    };
+
+    function validate() {
+      const errs = [];
+
+      if (touched.company_name && !companyNameRe.test(company.value.trim())) {
+        errs.push('company name must contain only letters, numbers and spaces');
+      }
+      if (touched.representative_name && !nameRe.test(repName.value.trim())) {
+        errs.push('representative name must contain only letters and spaces');
+      }
+      if (touched.email && !emailRe.test(email.value.trim())) {
+        errs.push('enter a valid email address');
+      }
+      if (touched.password && !pwdRe.test(password.value)) {
+        errs.push('password must be 6–16 chars, include at least one number & special character');
+      }
+      if (touched.confirm_password && password.value !== confirmPwd.value) {
+        errs.push('passwords do not match');
+      }
+      if (touched.agree_terms && !agree.checked) {
+        errs.push('you must agree to the terms and conditions');
+      }
+
+      errorP.textContent = errs[0] || '';
+      const allValid = 
+        nameRe.test(company.value.trim()) &&
+        nameRe.test(repName.value.trim()) &&
+        emailRe.test(email.value.trim()) &&
+        pwdRe.test(password.value) &&
+        password.value === confirmPwd.value &&
+        agree.checked;
+
+      submitBtn.disabled = !allValid;
+      submitBtn.style.opacity = allValid ? '1' : '0.5';
+    }
+
+    // Attach listeners
+    [company, repName, email, password, confirmPwd, agree].forEach(el => {
+      const key = el.name;
+      el.addEventListener('blur', () => {
+        touched[key] = true;
+        validate();
+      });
+      el.addEventListener('input', () => {
+        if (touched[key]) validate();
+      });
+      if (el.type === 'checkbox') {
+        el.addEventListener('change', () => {
+          touched[key] = true;
+          validate();
+        });
+      }
+    });
+
+    // Initial state
+    submitBtn.disabled = true;
+    submitBtn.style.opacity = '0.5';
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,391 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{% static 'css/vendors.css' %}">
+    <link media="all" rel="stylesheet" href="{% static 'css/jobplugin.css' %}">
+    <link media="all" rel="stylesheet" href="{% static 'css/theme-color.css' %}">
+    <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    integrity="sha512-p2x8RDrx9Nj2dNa+UDGz9Yi4iW6qeCy9jZeNDf836pxo5GFLe3fGJ5yV6HdGADgDp+rU5fE+d7+4JgX2kmXU9g=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+    />
+    <link
+    href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+    rel="stylesheet"
+    />
+
+<title>WorkWise</title>
+</head>
+<body class="jobplugin">
+    <!-- main container of all the page elements -->
+    <div class="jobplugin__wrapper">
+        <!-- Page Loader -->
+        <div class="jobplugin__loader">
+            <div class="jobplugin__loader-animmte"></div>
+            <div class="jobplugin__loader-logo">
+                <img src="{% static 'images/favicon.png' %}" alt="Loading....">
+            </div>
+        </div>
+
+        <!-- Header of the Page -->
+        {% include "includes/header.html" %}
+
+        <!-- Contain Main informative part of the Site -->
+        <main class="jobplugin__main">
+            <!-- Visual of the page -->
+            <section class="jobplugin__visual">
+                <div class="jobplugin__container">
+                    <div class="jobplugin__visual-holder">
+                        <!-- Visual Textbox-->
+                        <div class="jobplugin__visual-textbox">
+                            <h1 class="jobplugin__text-secondary">Find the dream job and <span style="color:#937CD8 ">Talent here</span></h1>
+                            <p>WorkWise is here to help you take the next big step in your career journey. Create your profile, explore opportunities.</p>
+                            <!-- Visual Buttons -->
+                            <div class="jobplugin__visual-buttons">
+                                <a href="{% url 'index:jobs_list'%}" class="jobplugin__button large jobplugin__bg-primary hover:jobplugin__bg-secondary">Get Started</a>
+                                
+                            </div>
+                        </div>
+                        <!-- Visual Image -->
+                        <div class="jobplugin__visual-image">
+                            <img src="{% static 'images/image-visual.png' %}" alt="The World's Work Marketplace">
+                        </div>
+                    </div>
+                    <!-- Visual Trending jobs -->
+                    <div class="jobplugin__visual-trending">
+                    <strong class="jobplugin__visual-subtitle">Trending Jobs:</strong>
+                    <ul class="jobplugin__visual-list">
+                        {% for dep in departments_list|slice:":6" %}
+                        <li>
+                            <a
+                            class="hover:jobplugin__bg-primary hover:jobplugin__border-primary"
+                            href="{% url 'index:explore_jobs' 'department' dep.slug %}">
+                            {{ dep.title }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    </div>
+
+                </div>
+                <span class="jobplugin__pattern jobplugin__pattern-right"></span>
+                <span class="jobplugin__pattern jobplugin__pattern-left"></span>
+                <div class="jobplugin__visual-pattern">
+                    <img src="{% static 'images/visual-pattern.png' %}" alt="Image Description">
+                </div>
+            </section>
+            <!-- Section Categories -->
+            <section class="jobplugin__section jobplugin__section-white jobplugin__section-categories">
+                <div class="jobplugin__container">
+                    <!-- Section Header -->
+                    <header class="jobplugin__section-header">
+                        <h2 class="jobplugin__text-secondary">Browse Talent by category</h2>
+                    </header>
+                    <!-- Section Categories Tebset -->
+                    <div class="jobplugin__tabset">
+                        <ul data-tabset="tabset">
+                            <li class="active"><a class="jobplugin__text-secondary hover:jobplugin__text-white hover:jobplugin__bg-primary" data-tabset="tabset-link" href="looking-work">Looking for work?</a></li>
+                            <li><a class="jobplugin__text-secondary hover:jobplugin__text-white hover:jobplugin__bg-primary" data-tabset="tabset-link" href="browse-jobs">Browse jobs</a></li>
+                        </ul>
+                    </div>
+                    <!-- Section industries Tabsholder -->
+                    <div class="jobplugin__tabsholder">
+                    <div id="tab-looking-work" class="jobplugin__tabscontent active">
+                        <div class="jobplugin__row jobplugin__four-column">
+                        {% for ind in industries_list %}
+                            <div class="jobplugin__column">
+                            <a
+                                class="jobplugin__section-box"
+                                href="{% url 'index:explore_jobs' 'industry' ind.slug %}">
+                                <strong class="jobplugin__section-categories__title">
+                                {{ ind.title }}
+                                </strong>
+                                <span class="jobplugin__section-categories__subtext">
+                                {{ ind.count }} Jobs
+                                </span>
+                            </a>
+                            </div>
+                        {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- section department Tabsholder -->
+                    <div id="tab-browse-jobs" class="jobplugin__tabscontent">
+                        <div class="jobplugin__row jobplugin__four-column">
+                        {% for dep in departments_list %}
+                            <div class="jobplugin__column">
+                            <a
+                                class="jobplugin__section-box"
+                                href="{% url 'index:explore_jobs' 'department' dep.slug %}">
+                                <strong class="jobplugin__section-categories__title">
+                                {{ dep.title }}
+                                </strong>
+                                <span class="jobplugin__section-categories__subtext">
+                                {{ dep.count }} Jobs
+                                </span>
+                            </a>
+                            </div>
+                        {% endfor %}
+                        </div>
+                    </div>
+                    </div>
+
+                </div>
+            </section>
+            <!-- Section Join -->
+            <section class="jobplugin__section jobplugin__section-white jobplugin__section-join">
+                <div class="jobplugin__container">
+                    <!-- Section Head -->
+                    <header class="jobplugin__section-header jobplugin__section-header__textleft">
+                        <h2 class="jobplugin__text-secondary">Up your work game,<br> it’s easy</h2>
+                        <div class="jobplugin__section-join__signup">
+                            <p>Access the top jobs on workwise from top companies, and make your work game easy by applying the best suitable job matching.</p>
+                            <div class="jobplugin__section-buttons">
+
+                                {% if request.session.candidate_id or request.session.employer_id %}
+                                
+                                {% else %}
+                                <a href="{% url 'authentication:signup'%}" class="jobplugin__button jobplugin__bg-primary hover:jobplugin__bg-secondary">Sign Up for Free</a>
+                                 {% endif %}   
+
+                                <a href="#"
+                                    id="learn-apply-btn"
+                                    data-video-url="https://youtu.be/EoO0z6LAthU?si=O4safRw9QF7SP0RK"
+                                    class="jobplugin__button button-white button-link hover:jobplugin__bg-primary hover:jobplugin__text-white">
+                                    Learn How to Apply
+                                </a>
+
+                                <!-- Modal markup -->
+                                <div id="video-modal" class="video-modal">
+                                <div class="video-modal-content">
+                                    <span id="video-modal-close" class="video-modal-close">&times;</span>
+                                    <iframe
+                                    id="video-iframe"
+                                    frameborder="0"
+                                    allow="autoplay; encrypted-media"
+                                    allowfullscreen>
+                                    </iframe>
+                                </div>
+                                </div>   
+                                 
+
+                            </div>
+                        </div>
+                    </header>
+                    <!-- Section Two Columns -->
+                    <div class="jobplugin__row jobplugin__two-column">
+                        <div class="jobplugin__column">
+                            <!-- Section Join Image -->
+                            <div class="jobplugin__section-join__image">
+                                <span class="jobplugin__section-join__image-shape jobplugin__bg-primary"></span>
+                                <div class="jobplugin__section-join__image-holder">
+                                    <img src="{% static 'images/image01.jpg' %}" alt="Image Description">
+                                </div>
+                                <span class="jobplugin__pattern jobplugin__pattern-right"></span>
+                            </div>
+                        </div>
+                        <div class="jobplugin__column jobplugin__section-join__boxes">
+                            <!-- Section Join Box -->
+                            <div class="jobplugin__section-box">
+                                <div class="jobplugin__section-join__icon jobplugin__text-primary">
+                                    {% comment %} <span class="rj-icon rj-add-group"></span> {% endcomment %}
+                                </div>
+                                <div class="jobplugin__section-join__textbox">
+                                    <strong class="jobplugin__section-join__title">No cost to join</strong>
+                                    <p>Register and browse Jobs, explore , or even book a consultation.</p>
+                                </div>
+                            </div>
+                            <!-- Section Join Box -->
+                            <div class="jobplugin__section-box">
+                                <div class="jobplugin__section-join__icon jobplugin__text-primary">
+                                    {% comment %} <span class="rj-icon rj-search-post"></span> {% endcomment %}
+                                </div>
+                                <div class="jobplugin__section-join__textbox">
+                                    <strong class="jobplugin__section-join__title">Apply for job and get hire</strong>
+                                    <p>Register and browse professional jobs, explore projects and get hire by market leaders.</p>
+                                </div>
+                            </div>
+                            <!-- Section Join Box -->
+                            <div class="jobplugin__section-box">
+                                <div class="jobplugin__section-join__icon jobplugin__text-primary">
+                                    {% comment %} <span class="rj-icon rj-work-home"></span> {% endcomment %}
+                                </div>
+                                <div class="jobplugin__section-join__textbox">
+                                    <strong class="jobplugin__section-join__title">Enhance your skills</strong>
+                                    <p>Get personalized recommendation and consultation for skill enhancement to increase higher chance of getting job.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- Section Clients -->
+            <section class="jobplugin__section jobplugin__section-gray jobplugin__section-clients">
+                <div class="jobplugin__section-clients-pattern">
+                    <img src="{% static 'images/clients-pattern.png' %}" alt="Image Description">
+                </div>
+                <div class="jobplugin__container">
+                    <span class="jobplugin__pattern jobplugin__pattern-right"></span>
+                    <!-- Section Header -->
+                    <header class="jobplugin__section-header">
+                        <strong class="jobplugin__section-header__subtitle jobplugin__text-primary">For employer</strong>
+                        <h2 class="jobplugin__text-secondary">Find <span style=" color:blue " >Talent</span> your way</h2>
+                        <p>Work with the largest network of independent professionals and get things done—from quick turnarounds to big transformations.</p>
+                    </header>
+                    <!-- Section Three Columns -->
+                    <div class="jobplugin__row jobplugin__three-column" id="find-talent-section">
+                        <div class="jobplugin__column">
+                            <!-- Section Client Box -->
+                            <a href="#" class="jobplugin__section-box jobplugin__text-secondary hover:jobplugin__bg-secondary hover:jobplugin__border-secondary hover:jobplugin__text-white">
+								<strong class="jobplugin__section-clients__title">Talent Marketplace</strong>
+								<h2>Post a Job and Hire a Pro</h2>
+								{% comment %} <span class="jobplugin__section-clients__arrow jobplugin__bg-primary rj-icon rj-arrow-right"></span> {% endcomment %}
+							</a>
+                        </div>
+                        <div class="jobplugin__column">
+                            <!-- Section Client Box -->
+                            <a href="#" class="jobplugin__section-box jobplugin__text-secondary hover:jobplugin__bg-secondary hover:jobplugin__border-secondary hover:jobplugin__text-white">
+								<strong class="jobplugin__section-clients__title">CV Shortlisting</strong>
+								<h2>Choose best among 10000+ CVs</h2>
+								{% comment %} <span class="jobplugin__section-clients__arrow jobplugin__bg-primary rj-icon rj-arrow-right"></span> {% endcomment %}
+							</a>
+                        </div>
+                        <div class="jobplugin__column">
+                            <!-- Section Client Box -->
+                            <a href="#" class="jobplugin__section-box jobplugin__text-secondary hover:jobplugin__bg-secondary hover:jobplugin__border-secondary hover:jobplugin__text-white">
+								<strong class="jobplugin__section-clients__title">Application Ranking</strong>
+								<h2>Ranked based on skills and experience</h2>
+								{% comment %} <span class="jobplugin__section-clients__arrow jobplugin__bg-primary rj-icon rj-arrow-right"></span> {% endcomment %}
+							</a>
+                        </div>
+                    </div>
+                    <!-- Section Client Visual -->
+                    <div class="jobplugin__section-clients__visual">
+                        <div class="jobplugin__section-clients__visual-holder">
+                            <img src="{% static 'images/visual-client.jpg' %}" alt="Image Description">
+                        </div>
+                        <div class="jobplugin__section-clients__visual-avatar size-one position-one">
+                            <img src="{% static 'images/img-client01.png' %}" alt="Image Description">
+                        </div>
+                        <div class="jobplugin__section-clients__visual-avatar size-two position-two">
+                            <img src="{% static 'images/img-client02.png' %}" alt="Image Description">
+                        </div>
+                        <div class="jobplugin__section-clients__visual-avatar size-three position-three">
+                            <img src="{% static 'images/img-client03.png' %}" alt="Image Description">
+                        </div>
+                        <div class="jobplugin__section-clients__visual-avatar size-four position-four">
+                            <img src="{% static 'images/img-client04.png' %}" alt="Image Description">
+                        </div>
+                        <div class="jobplugin__section-clients__visual-avatar size-five position-five">
+                            <img src="{% static 'images/img-client05.png' %}" alt="Image Description">
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            
+            
+            <!-- Section CTA -->
+            <section class="jobplugin__section jobplugin__section-white jobplugin__section-cta">
+                <div class="jobplugin__container">
+                    <div class="jobplugin__section-cta__holder jobplugin__bg-primary">
+                        <div class="jobplugin__section-cta__textbox">
+                            <!-- Section Header -->
+                            <header class="jobplugin__section-header jobplugin__section-header__textleft">
+                                <h2 class="jobplugin__text-white">Get Instant Answers to Your Questions</h2>
+                                <p class="jobplugin__text-white">Start a conversation with chatbot powered by AI.</p>
+                                <!-- Section CTA Buttons -->
+                                <div class="jobplugin__section-buttons">
+                                    <a href="#" class="jobplugin__button button-white jobplugin__text-primary hover:jobplugin__bg-secondary hover:jobplugin__text-white">I'm a employer looking to hire for a project</a>
+                                    <a href="#" class="jobplugin__button button-white jobplugin__text-primary hover:jobplugin__bg-secondary hover:jobplugin__text-white">I'm a candidate looking for job</a>
+                                </div>
+                            </header>
+                        </div>
+                        <!-- Section CTA Image -->
+                        <div class="jobplugin__section-cta__image">
+                            <img src="{% static 'images/img-cta.png' %}" alt="Image Description">
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+
+        <!-- Footer of the Page -->
+        {% include "includes/footer.html" %}
+
+    </div>
+
+
+    <!-- jQuery Library -->
+<script src="{% static 'js/jquery-3.6.4.min.js' %}"></script>
+<!-- jQuery Plugins File -->
+<script src="{% static 'js/vendor.js' %}"></script>
+<!-- jQuery Functions JS File -->
+<script src="{% static 'js/jquery.main.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const btn      = document.getElementById('learn-apply-btn');
+  const modal    = document.getElementById('video-modal');
+  const closeBtn = document.getElementById('video-modal-close');
+  const iframe   = document.getElementById('video-iframe');
+
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+
+    let url = this.dataset.videoUrl.trim();
+    let videoId;
+
+    // youtu.be short link
+    if (url.includes('youtu.be/')) {
+      videoId = url.split('youtu.be/')[1].split(/[?&]/)[0];
+    }
+    // full watch URL
+    else if (url.includes('watch?v=')) {
+      videoId = url.split('watch?v=')[1].split(/[?&]/)[0];
+    }
+    // embed URL already
+    else if (url.includes('embed/')) {
+      videoId = url.split('embed/')[1].split(/[?&]/)[0];
+    }
+    else {
+      // fallback: assume the entire string is the ID
+      videoId = url;
+    }
+
+    // Build proper embed src
+    iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+
+    // Show modal
+    modal.style.display = 'flex';
+  });
+
+  function closeModal() {
+    iframe.src = '';
+    modal.style.display = 'none';
+  }
+
+  closeBtn.addEventListener('click', closeModal);
+  modal.addEventListener('click', function(e) {
+    if (e.target === modal) closeModal();
+  });
+});
+
+</script>
+
+
+</body>
+
+</html>

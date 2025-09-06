@@ -1,0 +1,158 @@
+{% extends 'candidate_profile/candidate_base.html' %}
+{% load static %}
+
+{% block head %}
+<link
+  rel="stylesheet"
+  href="{% static 'candidate_profile/css/application_detail.css' %}"
+>
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+/>
+{% endblock head %}
+
+{% block content %}
+<main class="application-detail-container">
+  <!-- Page Title -->
+  <h1>Application for “{{ application.job.title }}”</h1>
+
+  <div class="app-grid">
+    <!-- LEFT COLUMN -->
+    <aside class="app-sidebar">
+      <!-- Job Summary Card -->
+      <div class="card job-card">
+        <div class="job-header">
+          <div class="logo">
+            {% if application.job.employer.company_profile.logo %}
+              <img src="{{ application.job.employer.company_profile.logo.url }}"
+                   alt="{{ application.job.employer.company_name }} Logo">
+            {% else %}
+              <img src="{% static 'images/default-logo.png' %}" alt="Logo">
+            {% endif %}
+          </div>
+          <div class="info">
+            <h2>{{ application.job.title }}</h2>
+            <p class="company">{{ application.job.employer.company_name }}</p>
+            <p class="location">
+              <i class="fas fa-map-marker-alt"></i>
+              {{ application.job.full_location_address }}
+            </p>
+            <p class="posted">
+              <i class="fas fa-clock"></i>
+              Posted {{ application.job.posted_at|date:"M j, Y" }}
+            </p>
+          </div>
+        </div>
+        <ul class="job-specs">
+          <li><strong>Deadline:</strong> {{ application.job.application_deadline }}</li>
+          <li><strong>Positions:</strong> {{ application.job.num_candidates_required }}</li>
+          <li>
+            <strong>Experience:</strong>
+            {{ application.job.experience_min }}–{{ application.job.experience_max }} yrs
+            ({{ application.job.experience_level|capfirst }})
+          </li>
+          <li>
+            <strong>Salary:</strong>
+            {% if application.job.salary_type == 'fixed' %}
+              Fixed {{ application.job.salary_max }}/{{ application.job.salary_frequency }}
+            {% else %}
+              {{ application.job.salary_min }}–{{ application.job.salary_max }}/{{ application.job.salary_frequency }} (Negotiable)
+            {% endif %}
+          </li>
+          <li><strong>Work Type:</strong> {{ application.job.work_type|capfirst }}</li>
+          <li><strong>Industry:</strong> {{ application.job.industry|cut:"_"|title }}</li>
+          <li><strong>Department:</strong> {{ application.job.department|cut:"_"|title }}</li>
+          <li><strong>Gender:</strong> {{ application.job.gender_requirement|cut:"_"|capfirst }}</li>
+        </ul>
+      </div>
+
+      <!-- Company Profile Card -->
+      <div class="card company-card">
+        <h3>Company Profile</h3>
+        <p>{{ application.job.employer.company_profile.description }}</p>
+        <ul class="company-details">
+          {% if application.job.employer.company_profile.website %}
+            <li><i class="fas fa-globe"></i>
+              <a href="{{ application.job.employer.company_profile.website }}"
+                 target="_blank">{{ application.job.employer.company_profile.website|urlize }}</a>
+            </li>
+          {% endif %}
+          {% if application.job.employer.company_profile.phone_number %}
+            <li><i class="fas fa-phone"></i>
+              {{ application.job.employer.company_profile.phone_number }}
+            </li>
+          {% endif %}
+          {% if application.job.employer.company_profile.address %}
+            <li><i class="fas fa-map-marker-alt"></i>
+              {{ application.job.employer.company_profile.address }}
+            </li>
+          {% endif %}
+        </ul>
+      </div>
+    </aside>
+
+    <!-- RIGHT COLUMN -->
+    <section class="app-main">
+      <!-- Progress Bar -->
+      <div class="progress-section">
+        <ul class="progress-bar">
+          {% for step in steps %}
+            <li class="{% if forloop.counter0 <= current_step %}active{% endif %}">
+              {{ step.label }}
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <!-- Application Details -->
+      <div class="card app-details-card">
+        <h3>Your Application</h3>
+        <dl class="app-details-list">
+          <div>
+            <dt>Applied On</dt>
+            <dd>{{ application.applied_at|date:"M j, Y, P" }}</dd>
+          </div>
+          <div>
+            <dt>Status</dt>
+            <dd>{{ application.get_status_display }}</dd>
+          </div>
+          {% if application.interview_at %}
+          <div>
+            <dt>Interview At</dt>
+            <dd>{{ application.interview_at|date:"M j, Y, P" }}</dd>
+          </div>
+          {% endif %}
+          <div>
+            <dt>Cover Letter</dt>
+            <dd>
+              <a href="{{ application.cover_letter.url }}" target="_blank">
+                Download / Preview
+              </a>
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- Cover Letter Preview -->
+      <div class="card preview-card">
+        <h3>Cover Letter Preview</h3>
+        {% if application.cover_letter.url|slice:"-4:" == ".pdf" %}
+        <object
+            data="{{ application.cover_letter.url }}"
+            type="application/pdf"
+            width="100%" height="300px">
+            <p>PDF preview not available. <a href="{{ application.cover_letter.url }}">Download</a></p>
+        </object>
+        {% else %}
+        <img
+            src="{{ application.cover_letter.url }}"
+            alt="Cover Letter"
+            class="cover-preview-img">
+        {% endif %}
+
+      </div>
+    </section>
+  </div>
+</main>
+{% endblock content %}

@@ -1,0 +1,186 @@
+{% extends 'candidate_profile/candidate_base.html' %}
+{% load static %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'candidate_profile/css/dashboard.css' %}">
+  <link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+/>
+
+  <title>Your Dashboard</title>
+{% endblock head %}
+
+{% block content %}
+  <h2 class="page-title">Welcome, {{ candidate.first_name }}!</h2>
+
+  <!-- 1. Summary Cards -->
+  <div class="cards-grid">
+    <a href="{% url 'candidate:applied_jobs'%} " class="dashboard-url"><div class="card">
+      <i class="fas fa-file-alt card-icon"></i>
+      <div class="card-info">
+        <h3>{{ total_apps }}</h3>
+        <p>Total Applications</p>
+      </div>
+    </div></a>
+    <div class="card">
+      <i class="fas fa-spinner card-icon"></i>
+      <div class="card-info">
+        <h3>{{ pending_reviews }}</h3>
+        <p>Pending Reviews</p>
+      </div>
+    </div>
+    <div class="card">
+      <i class="fas fa-calendar-check card-icon"></i>
+      <div class="card-info">
+        <h3>{{ interviews }}</h3>
+        <p>Interviews Scheduled</p>
+      </div>
+    </div>
+    <div class="card">
+      <i class="fas fa-handshake card-icon"></i>
+      <div class="card-info">
+        <h3>{{ offers }}</h3>
+        <p>Offers Extended</p>
+      </div>
+    </div>
+    <a href="{% url 'candidate:applied_jobs'%} " class="dashboard-url"><div class="card">
+      <i class="fas fa-bookmark card-icon"></i>
+      <div class="card-info">
+        <h3>{{ saved_jobs }}</h3>
+        <p>Saved Jobs</p>
+      </div>
+    </div></a>
+  </div>
+
+  <!-- 2. Charts -->
+  <div class="charts-row">
+    <div class="chart-card">
+    <h4>Application Status</h4>
+    <canvas id="statusChart"></canvas>
+    </div>
+    <div class="chart-card">
+    <h4>Applications Over Time</h4>
+    <canvas id="activityChart"></canvas>
+    </div>
+</div>
+
+
+  <!-- 3. Upcoming Interviews -->
+  <div class="upcoming-section">
+    <h4>Next Interviews</h4>
+    {% if upcoming_interviews %}
+      <ul>
+        {% for app in upcoming_interviews %}
+          <li>
+            {{ app.interview_at|date:"M d, Y h:i A" }} —
+            {{ app.job.employer.company_profile.company_name }}:
+            {{ app.job.title }}
+            <a href="{{ app.meeting_link }}" target="_blank" class="join-btn">Join</a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No upcoming interviews.</p>
+    {% endif %}
+  </div>
+
+  <!-- 4. Profile Completeness -->
+  <div class="profile-section">
+  <h4>Your Profile Completeness</h4>
+
+  <!-- 1) Jar‐style progress bar -->
+  <div class="progress-bar jar">
+    {% for seg in profile_segments %}
+      <div
+        class="segment {% if seg.done %}filled{% endif %}"
+        style="width: {{ seg.width }}%;"
+      ></div>
+    {% endfor %}
+  </div>
+
+  <!-- 2) Labels & icons under each slice -->
+  <div class="progress-labels">
+    {% for seg in profile_segments %}
+      <div class="label-seg" style="width: {{ seg.width }}%;">
+        <i class="fas {% if seg.done %}fa-check-circle complete-icon{% else %}fa-times-circle incomplete-icon{% endif %}"></i>
+        <span class="label-text">{{ seg.name }}</span>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- 3) Percentage -->
+  <p class="percentage">{{ profile_completeness }}% Complete</p>
+
+  <!-- 4) Button or completion message -->
+  {% if profile_completeness == 100 %}
+    <div class="complete-message">
+      <i class="fas fa-check-circle"></i>
+      Your profile is complete!
+    </div>
+  {% else %}
+    <a href="{% url 'candidate:profile_manage' %}" class="btn-complete">
+      Complete Profile
+    </a>
+  {% endif %}
+</div>
+
+
+{% endblock content %}
+
+
+  {% block script %}
+ 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+    // parse JSON straight from Django context
+    const statusLabels    = {{ status_labels_json|safe }};
+    const statusData      = {{ status_data_json|safe }};
+    const activityLabels  = {{ activity_labels_json|safe }};
+    const activityData    = {{ activity_data_json|safe }};
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // draw doughnut
+      new Chart(
+        document.getElementById('statusChart').getContext('2d'),
+        {
+          type: 'doughnut',
+          data: {
+            labels: statusLabels,
+            datasets: [{ data: statusData }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            aspectRatio: 1,
+            plugins: { legend: { position: 'bottom' } }
+          }
+        }
+      );
+
+      // draw line
+      new Chart(
+        document.getElementById('activityChart').getContext('2d'),
+        {
+          type: 'line',
+          data: {
+            labels: activityLabels,
+            datasets: [{
+              label: 'Applications',
+              data: activityData,
+              fill: false,
+              tension: 0.3
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: { y: { beginAtZero: true } }
+          }
+        }
+      );
+    });
+  </script>
+{% endblock script %}
+
+

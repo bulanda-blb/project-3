@@ -1,0 +1,79 @@
+{% extends 'candidate_profile/candidate_base.html' %}
+{% load static %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'candidate_profile/css/interview_list.css' %}">
+<title>Interview Scheduled</title>
+{% endblock head %}
+
+{% block content %}
+<h2 class="page-title">Interview Scheduled</h2>
+<form method="get" class="filter-form">
+  <label for="whenSelect">Show:</label>
+  <select name="when" id="whenSelect" onchange="this.form.submit()">
+    <option value="all"      {% if current_when == 'all'      %}selected{% endif %}>All</option>
+    <option value="today"    {% if current_when == 'today'    %}selected{% endif %}>Today</option>
+    <option value="tomorrow" {% if current_when == 'tomorrow' %}selected{% endif %}>Tomorrow</option>
+    <option value="nextday"  {% if current_when == 'nextday'  %}selected{% endif %}>Day After</option>
+    <option value="past"     {% if current_when == 'past'     %}selected{% endif %}>Past</option>
+  </select>
+</form>
+<div class="grid-container">
+  {% for app in applications %}
+    <div class="card">
+      <div class="card-left">
+        <img 
+        src="{{ app.job.employer.company_profile.logo.url|default:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png' }}" 
+        alt="Company Logo"
+        class="company-logo"
+        />
+        <div class="job-info">
+          <h3>{{ app.job.title }}</h3>
+          <p>{{ app.job.employer.company_name }}</p>
+          <p class="status">Status: <span>Interview</span></p>
+        </div>
+      </div>
+      <div class="card-right">
+        <p><strong>When:</strong> {{ app.interview_at|date:"M d, Y h:i A" }}</p>
+        <p><strong>Message:</strong> 
+          {% if app.meeting_message %}
+            {{ app.meeting_message|truncatechars:60 }}
+          {% else %}
+            <em>No message yet</em>
+          {% endif %}
+        </p>
+        <p><strong>Link:</strong>
+          {% if app.meeting_link %}
+            <a href="{{ app.meeting_link }}" target="_blank">Join Meeting</a>
+          {% else %}
+            <em>Not set</em>
+          {% endif %}
+        </p>
+        <a 
+          href="{% url 'candidate:application_detail' app.id %}" 
+          class="btn-detail"
+        >
+          View Details
+        </a>
+      </div>
+    </div>
+  {% empty %}
+    <p>No interviews scheduled.</p>
+  {% endfor %}
+</div>
+
+<div class="pagination">
+  {% if applications.has_previous %}
+    <a href="?when={{ current_when }}&page={{ applications.previous_page_number }}">&laquo; Prev</a>
+  {% endif %}
+  <span>Page {{ applications.number }} of {{ applications.paginator.num_pages }}</span>
+  {% if applications.has_next %}
+    <a href="?when={{ current_when }}&page={{ applications.next_page_number }}">Next &raquo;</a>
+  {% endif %}
+</div>
+
+{% endblock content %}
+
+{% block script %}
+<script src="{% static 'candidate_profile/js/interview_list.js' %}"></script>
+{% endblock script %}

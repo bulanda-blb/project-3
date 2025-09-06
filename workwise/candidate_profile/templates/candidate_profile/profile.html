@@ -1,0 +1,304 @@
+{% extends 'candidate_profile/candidate_base.html' %}
+{% load static %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'candidate_profile/css/profile.css' %}">
+<title>Your Profile</title>
+{{ block.super }}
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet/dist/leaflet.css"
+  />
+{% endblock head %}
+
+{% block content %}
+<div class="profile-page">
+
+  <!-- Flash Messages -->
+  {% if errors.top or errors.pic or errors.password %}
+    <div class="flash flash-error">
+      {% for msg in errors.values %}
+        {% if msg is dict %}
+          {% for m in msg.values %}<p>{{ m }}</p>{% endfor %}
+        {% else %}
+          <p>{{ msg }}</p>
+        {% endif %}
+      {% endfor %}
+    </div>
+  {% endif %}
+  {% if success.top or success.pic %}
+    <div class="flash flash-success">
+      {% for msg in success.values %}
+        <p>{{ msg }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="profile-header">
+    <!-- Avatar -->
+    <div class="avatar-wrapper">
+      {% if candidate.profile_picture %}
+        <img src="{{ candidate.profile_picture.url }}" class="avatar">
+      {% else %}
+        <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="avatar">
+      {% endif %}
+      <button class="btn-circle" data-modal="modal-pic">
+        <i class="fas fa-camera"></i>
+      </button>
+    </div>
+
+    <!-- Name & Email -->
+    <div class="info">
+      <h2>
+        {{ candidate.first_name }} {{ candidate.last_name }}
+        {% comment %} <button class="edit-btn" data-modal="modal-edit-top">
+          <i class="fas fa-edit"></i>
+        </button> {% endcomment %}
+      </h2>
+      <p>{{ candidate.email }}</p>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+      <label class="switch">
+        <input type="checkbox" id="toggle-notify" {% if candidate.email_notify %}checked{% endif %}>
+        <span class="slider"></span>
+      </label>
+      <button class="btn-outline" data-modal="modal-password">Change Password</button>
+    </div>
+  </div>
+
+  <!-- Modals -->
+
+  <!-- Edit Name/Email -->
+  <div id="modal-edit-top" class="modal">
+  <div class="modal-content">
+    <button class="modal-close">&times;</button>
+    <h3>Edit Name & Email</h3>
+    <form method="post" action="{% url 'candidate:profile_manage' %}">
+      {% csrf_token %}
+      <input type="hidden" name="section" value="top">
+
+      <label>First Name
+        <input
+          id="input-first-name"
+          type="text"
+          name="first_name"
+          value="{{ candidate.first_name }}"
+          required
+        >
+      </label>
+      <div class="error-text" id="error-first-name"></div>
+
+      <label>Last Name
+        <input
+          id="input-last-name"
+          type="text"
+          name="last_name"
+          value="{{ candidate.last_name }}"
+          required
+        >
+      </label>
+      <div class="error-text" id="error-last-name"></div>
+
+      <label>Email
+        <input
+          id="input-email"
+          type="email"
+          name="email"
+          value="{{ candidate.email }}"
+          required
+        >
+      </label>
+      <div class="error-text" id="error-email"></div>
+
+      <div class="modal-buttons">
+        <button type="button" class="btn-cancel">Cancel</button>
+        <button
+          id="save-top-btn"
+          type="submit"
+          class="btn-save disabled"
+          disabled
+        >Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+  <!-- Upload Picture -->
+  <div id="modal-pic" class="modal">
+  <div class="modal-content">
+    <button class="modal-close">&times;</button>
+    <h3>Upload Profile Picture</h3>
+    <form
+      method="post"
+      enctype="multipart/form-data"
+      action="{% url 'candidate:profile_manage' %}"
+    >
+      {% csrf_token %}
+      <input type="hidden" name="section" value="pic">
+
+      <input
+        id="input-picture"
+        type="file"
+        name="picture"
+        accept="image/png,image/jpeg"
+        required
+      >
+      <div class="error-text" id="error-picture"></div>
+
+      <div class="modal-buttons">
+        <button type="button" class="btn-cancel">Cancel</button>
+        <button
+          id="save-pic-btn"
+          type="submit"
+          class="btn-save disabled"
+          disabled
+        >Upload</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+  <!-- Change Password -->
+  <div id="modal-password" class="modal">
+  <div class="modal-content">
+    <button class="modal-close">&times;</button>
+    <h3>Change Password</h3>
+    <form method="post" action="{% url 'candidate:profile_manage' %}">
+      {% csrf_token %}
+      <input type="hidden" name="section" value="password">
+
+      <label>Current Password
+        <input
+          id="old-password"
+          type="password"
+          name="old_password"
+          required
+        >
+      </label>
+      <div class="error-text" id="error-old-password"></div>
+
+      <label>New Password
+        <input
+          id="new-password"
+          type="password"
+          name="new_password"
+          required
+        >
+      </label>
+      <div class="error-text" id="error-new-password"></div>
+
+      <label>Confirm Password
+        <input
+          id="confirm-password"
+          type="password"
+          name="confirm_password"
+          required
+        >
+      </label>
+      <div class="error-text" id="error-confirm-password"></div>
+
+      <div class="modal-buttons">
+        <button type="button" class="btn-cancel">Cancel</button>
+        <button
+          id="save-password-btn"
+          type="submit"
+          class="btn-save disabled"
+          disabled
+        >Change</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+</div>
+{{ block.super }}
+<section class="location-section">
+    <h3>Your Residental Location</h3>
+    <p>Location will help us to recommend jobs near you.</p>
+    <div id="location-map" class="map-container"></div>
+    <button
+      id="save-location-btn"
+      class="btn-save disabled"
+      disabled
+    >Save Location</button>
+  </section>
+{% endblock content %}
+
+{% block script %}
+
+  {{ block.super }}
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const initial = {
+      lat: {{ candidate.location.lat|default:27.7152 }},
+      lng: {{ candidate.location.lng|default:85.3240 }}
+    };
+
+    // Initialize map
+    const map = L.map('location-map').setView(
+      [initial.lat, initial.lng], 13
+    );
+    L.tileLayer(
+      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      { attribution: '&copy; OpenStreetMap contributors' }
+    ).addTo(map);
+
+    // Draggable marker
+    const marker = L.marker(
+      [initial.lat, initial.lng],
+      { draggable: true }
+    ).addTo(map);
+
+    const saveBtn = document.getElementById('save-location-btn');
+    let origLat = initial.lat, origLng = initial.lng;
+
+    // Enable button only if marker moved
+    marker.on('dragend', () => {
+      const pos = marker.getLatLng();
+      const moved =
+        Math.abs(pos.lat - origLat) > 1e-6 ||
+        Math.abs(pos.lng - origLng) > 1e-6;
+      saveBtn.disabled = !moved;
+      saveBtn.classList.toggle('disabled', !moved);
+    });
+
+    // Save new location via AJAX
+    saveBtn.addEventListener('click', () => {
+      const pos = marker.getLatLng();
+      fetch("{% url 'candidate:update_location' %}", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': (function(){
+            const name = 'csrftoken';
+            return document.cookie.split(';')
+              .find(c=>c.trim().startsWith(name+'='))
+              ?.split('=')[1];
+          })()
+        },
+        body: JSON.stringify({ lat: pos.lat, lng: pos.lng })
+      })
+      .then(r => r.json())
+      .then(j => {
+        if (j.status === 'ok') {
+          origLat = pos.lat;
+          origLng = pos.lng;
+          saveBtn.disabled = true;
+          saveBtn.classList.add('disabled');
+          alert('Location saved.');
+        } else {
+          alert('Could not save location.');
+        }
+      })
+      .catch(() => alert('Network error.'));
+    });
+  });
+  </script>
+
+<script src="{% static 'candidate_profile/js/profile.js' %}"></script>
+{% endblock script %}

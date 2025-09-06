@@ -1,0 +1,298 @@
+{% extends 'employer_profile/employer_base.html' %}
+{% load static %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'employer_profile/css/job_form.css' %}">
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<title>Edit Job Post</title>
+{% endblock head %}
+
+{% block content %}
+<h2 class="form-title">Edit the required fields to make changes to job post and submit</h2>
+
+{% if errors %}
+  <div id="backend-errors" class="backend-errors">
+    {% for msg in errors.values %}
+      <p>{{ msg }}</p>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<form id="jobForm" method="post" action="{% url 'employer:edit_job' job_id %}" novalidate>
+  {% csrf_token %}
+
+  <div class="form-flex">
+    <!-- Contact Email -->
+    <div class="form-group" id="group-contact_email">
+      <label for="contact_email">Contact Email <span class="required">*</span></label>
+      <input type="email" id="contact_email" name="contact_email"
+             placeholder="hr@company.com" required
+             value="{{ values.contact_email|default:'' }}">
+      <span class="help-text">Enter a valid email address.</span>
+      <div class="error-message" id="error-contact_email">{{ errors.contact_email }}</div>
+    </div>
+
+    <!-- Application Deadline -->
+    <div class="form-group" id="group-application_deadline">
+      <label for="application_deadline">Application Deadline <span class="required">*</span></label>
+      <input type="date" id="application_deadline" name="application_deadline"
+             required value="{{ values.application_deadline|default:'' }}">
+      <span class="help-text">Select the last date candidates can apply.</span>
+      <div class="error-message" id="error-application_deadline">{{ errors.application_deadline }}</div>
+    </div>
+
+    <!-- Job Title -->
+    <div class="form-group" id="group-title">
+      <label for="title">Job Title <span class="required">*</span></label>
+      <input type="text" id="title" name="title" maxlength="200"
+             placeholder="e.g. Senior Python Developer" required
+             value="{{ values.title|default:'' }}">
+      <span class="help-text">Keep it under 200 characters.</span>
+      <div class="error-message" id="error-title">{{ errors.title }}</div>
+    </div>
+  </div>
+
+  <!-- Industry & Department and languages-->
+  <div class="form-flex">
+    <div class="form-group" id="group-industry">
+      <label for="industry">Industry <span class="required">*</span></label>
+      <select id="industry" name="industry" required>
+        <option value="">– Select Industry –</option>
+        <option value="information_technology" {% if values.industry == 'information_technology' %}selected{% endif %}>Information Technology</option>
+        <option value="management" {% if values.industry == 'management' %}selected{% endif %}>Management</option>
+        <option value="business" {% if values.industry == 'business' %}selected{% endif %}>Business</option>
+        <option value="finance" {% if values.industry == 'finance' %}selected{% endif %}>Finance & Accounting</option>
+        <option value="healthcare" {% if values.industry == 'healthcare' %}selected{% endif %}>Healthcare</option>
+        <option value="education" {% if values.industry == 'education' %}selected{% endif %}>Education</option>
+        <option value="manufacturing" {% if values.industry == 'manufacturing' %}selected{% endif %}>Manufacturing</option>
+        <option value="construction" {% if values.industry == 'construction' %}selected{% endif %}>Construction</option>
+        <option value="retail" {% if values.industry == 'retail' %}selected{% endif %}>Retail</option>
+        <option value="hospitality" {% if values.industry == 'hospitality' %}selected{% endif %}>Hospitality</option>
+        <option value="telecommunication" {% if values.industry == 'telecommunication' %}selected{% endif %}>Telecommunication</option>
+        <option value="transportation" {% if values.industry == 'transportation' %}selected{% endif %}>Transportation & Logistics</option>
+        <option value="legal" {% if values.industry == 'legal' %}selected{% endif %}>Legal</option>
+        <option value="human_resources" {% if values.industry == 'human_resources' %}selected{% endif %}>Human Resources</option>
+        <option value="marketing_advertising" {% if values.industry == 'marketing_advertising' %}selected{% endif %}>Marketing & Advertising</option>
+        <option value="media_entertainment" {% if values.industry == 'media_entertainment' %}selected{% endif %}>Media & Entertainment</option>
+        <option value="research_development" {% if values.industry == 'research_development' %}selected{% endif %}>R&D</option>
+        <option value="non_profit" {% if values.industry == 'non_profit' %}selected{% endif %}>Non-profit</option>
+        <option value="government" {% if values.industry == 'government' %}selected{% endif %}>Government</option>
+        <option value="agriculture" {% if values.industry == 'agriculture' %}selected{% endif %}>Agriculture</option>
+        <option value="energy_utilities" {% if values.industry == 'energy_utilities' %}selected{% endif %}>Energy & Utilities</option>
+        <option value="pharmaceutical" {% if values.industry == 'pharmaceutical' %}selected{% endif %}>Pharmaceutical</option>
+        <option value="aerospace" {% if values.industry == 'aerospace' %}selected{% endif %}>Aerospace</option>
+        <option value="automotive" {% if values.industry == 'automotive' %}selected{% endif %}>Automotive</option>
+        <option value="tourism" {% if values.industry == 'tourism' %}selected{% endif %}>Tourism</option>
+        <option value="food_beverage" {% if values.industry == 'food_beverage' %}selected{% endif %}>Food & Beverage</option>
+        <option value="beauty_wellness" {% if values.industry == 'beauty_wellness' %}selected{% endif %}>Beauty & Wellness</option>
+        <option value="sports_recreation" {% if values.industry == 'sports_recreation' %}selected{% endif %}>Sports & Recreation</option>
+        <option value="arts_culture" {% if values.industry == 'arts_culture' %}selected{% endif %}>Arts & Culture</option>
+        <option value="environmental" {% if values.industry == 'environmental' %}selected{% endif %}>Environmental</option>
+        <option value="security" {% if values.industry == 'security' %}selected{% endif %}>Security</option>
+        <option value="consulting" {% if values.industry == 'consulting' %}selected{% endif %}>Consulting</option>
+      </select>
+      <span class="help-text">Choose the sector for your job.</span>
+      <div class="error-message" id="error-industry">{{ errors.industry }}</div>
+    </div>
+
+    <div class="form-group" id="group-department">
+      <label for="department">Department <span class="required">*</span></label>
+      <select id="department" name="department" required>
+        <option value="">– Select Department –</option>
+      </select>
+      <span class="help-text">Pick the relevant department.</span>
+      <div class="error-message" id="error-department">{{ errors.department }}</div>
+    </div>
+
+    <div class="form-group" id="group-languages">
+      <label for="languages">Languages <span class="required">*</span></label>
+      <input type="text" id="languages" name="languages"
+             placeholder="English, Nepali"
+             value="{{ values.languages|default:'' }}">
+      <div class="error-message" id="error-languages">{{ errors.languages }}</div>
+    </div>
+  </div>
+
+  <!-- Work Type , Gender and candidate requirement -->
+  <div class="form-flex">
+    <div class="form-group" id="group-work_type">
+      <label for="work_type">Work Type <span class="required">*</span></label>
+      <select id="work_type" name="work_type" required>
+        <option value="">– Select –</option>
+        <option value="part_time" {% if values.work_type == 'part_time' %}selected{% endif %}>Part-time</option>
+        <option value="full_time" {% if values.work_type == 'full_time' %}selected{% endif %}>Full-time</option>
+        <option value="contract" {% if values.work_type == 'contract' %}selected{% endif %}>Contract</option>
+        <option value="internship" {% if values.work_type == 'internship' %}selected{% endif %}>Internship</option>
+      </select>
+      <div class="error-message" id="error-work_type">{{ errors.work_type }}</div>
+    </div>
+
+    <div class="form-group" id="group-gender_requirement">
+      <label for="gender_requirement">Gender Requirement <span class="required">*</span></label>
+      <select id="gender_requirement" name="gender_requirement" required>
+        <option value="">– Select –</option>
+        <option value="male" {% if values.gender_requirement == 'male' %}selected{% endif %}>Male</option>
+        <option value="female" {% if values.gender_requirement == 'female' %}selected{% endif %}>Female</option>
+        <option value="no_requirement" {% if values.gender_requirement == 'no_requirement' %}selected{% endif %}>No requirement</option>
+      </select>
+      <div class="error-message" id="error-gender_requirement">{{ errors.gender_requirement }}</div>
+    </div>
+
+    <!-- # Candidates Required -->
+    <div class="form-group" id="group-num_candidates_required">
+      <label for="num_candidates_required">Number of Candidates Required <span class="required">*</span></label>
+      <input type="number" id="num_candidates_required" name="num_candidates_required" min="1" placeholder="e.g. 3"
+             value="{{ values.num_candidates_required|default:'' }}">
+      <div class="error-message" id="error-num_candidates_required">{{ errors.num_candidates_required }}</div>
+    </div>
+  </div>
+
+  <!-- Experience -->
+  <div class="form-flex">
+    <div class="form-group" id="group-experience_level">
+      <label for="experience_level">Experience Level <span class="required">*</span></label>
+      <select id="experience_level" name="experience_level" required>
+        <option value="">– Select –</option>
+        <option value="intern" {% if values.experience_level == 'intern' %}selected{% endif %}>Intern</option>
+        <option value="junior" {% if values.experience_level == 'junior' %}selected{% endif %}>Junior</option>
+        <option value="mid" {% if values.experience_level == 'mid' %}selected{% endif %}>Mid</option>
+        <option value="senior" {% if values.experience_level == 'senior' %}selected{% endif %}>Senior</option>
+      </select>
+      <div class="error-message" id="error-experience_level">{{ errors.experience_level }}</div>
+    </div>
+    <div class="form-group" id="group-experience_min">
+      <label for="experience_min">Experience Min (years) <span class="required">*</span></label>
+      <input type="number" id="experience_min" name="experience_min" min="0" placeholder="0"
+             value="{{ values.experience_min|default:'' }}">
+      <div class="error-message" id="error-experience_min">{{ errors.experience_min }}</div>
+    </div>
+    <div class="form-group" id="group-experience_max">
+      <label for="experience_max">Experience Max (years) <span class="required">*</span></label>
+      <input type="number" id="experience_max" name="experience_max" min="0" placeholder="5"
+             value="{{ values.experience_max|default:'' }}">
+      <div class="error-message" id="error-experience_max">{{ errors.experience_max }}</div>
+    </div>
+  </div>
+
+  <!-- Salary -->
+  <div class="form-flex">
+    <div class="form-group" id="group-salary_type">
+      <label for="salary_type">Salary Type <span class="required">*</span></label>
+      <select id="salary_type" name="salary_type" required>
+        <option value="">– Select –</option>
+        <option value="fixed" {% if values.salary_type == 'fixed' %}selected{% endif %}>Fixed</option>
+        <option value="negotiable" {% if values.salary_type == 'negotiable' %}selected{% endif %}>Negotiable</option>
+      </select>
+      <div class="error-message" id="error-salary_type">{{ errors.salary_type }}</div>
+    </div>
+
+    <div class="form-group" id="group-salary_frequency">
+      <label for="salary_frequency">Salary Frequency <span class="required">*</span></label>
+      <select id="salary_frequency" name="salary_frequency" required>
+        <option value="">– Select –</option>
+        <option value="hourly"        {% if values.salary_frequency == 'hourly' %}selected{% endif %}>Hourly</option>
+        <option value="weekly"        {% if values.salary_frequency == 'weekly' %}selected{% endif %}>Weekly</option>
+        <option value="monthly"       {% if values.salary_frequency == 'monthly' %}selected{% endif %}>Monthly</option>
+        <option value="quarterly"     {% if values.salary_frequency == 'quarterly' %}selected{% endif %}>Quarterly</option>
+        <option value="yearly"        {% if values.salary_frequency == 'yearly' %}selected{% endif %}>Yearly</option>
+      </select>
+      <div class="error-message" id="error-salary_frequency">{{ errors.salary_frequency }}</div>
+    </div>
+
+    <div class="form-group" id="group-salary_min">
+      <label for="salary_min">Salary Min (NPR) <span class="required">*</span></label>
+      <input type="number" id="salary_min" name="salary_min" step="0.01" placeholder="0"
+             value="{{ values.salary_min|default:'' }}">
+      <div class="error-message" id="error-salary_min">{{ errors.salary_min }}</div>
+    </div>
+
+    <div class="form-group" id="group-salary_max">
+      <label for="salary_max">Salary Max (NPR) <span class="required">*</span></label>
+      <input type="number" id="salary_max" name="salary_max" step="0.01" placeholder="50000"
+             value="{{ values.salary_max|default:'' }}">
+      <div class="error-message" id="error-salary_max">{{ errors.salary_max }}</div>
+    </div>
+  </div>
+
+  <!-- Requirements, Skills, Benefits -->
+  <div class="form-flex">
+    <div class="form-group" id="group-requirements">
+      <label for="requirements">Requirements <span class="required">*</span></label>
+      <input type="text" id="requirements" name="requirements" placeholder="Python, Django"
+             value="{{ values.requirements|default:'' }}">
+      <div class="error-message" id="error-requirements">{{ errors.requirements }}</div>
+    </div>
+    <div class="form-group" id="group-preferred_skills">
+      <label for="preferred_skills">Preferred Skills <span class="required">*</span></label>
+      <input type="text" id="preferred_skills" name="preferred_skills"
+             placeholder="Docker, Kubernetes"
+             value="{{ values.preferred_skills|default:'' }}">
+      <div class="error-message" id="error-preferred_skills">{{ errors.preferred_skills }}</div>
+    </div>
+    <div class="form-group" id="group-location_type">
+      <label for="location_type">Location Type <span class="required">*</span></label>
+      <select id="location_type" name="location_type" required>
+        <option value="">– Select –</option>
+        <option value="remote" {% if values.location_type == 'remote' %}selected{% endif %}>Remote</option>
+        <option value="onsite" {% if values.location_type == 'onsite' %}selected{% endif %}>Onsite</option>
+        <option value="office" {% if values.location_type == 'office' %}selected{% endif %}>Office</option>
+        <option value="hybrid" {% if values.location_type == 'hybrid' %}selected{% endif %}>Hybrid</option>
+      </select>
+      <div class="error-message" id="error-location_type">{{ errors.location_type }}</div>
+    </div>
+  </div>
+
+  <!-- Benefits & Address -->
+  <div class="form-flex">
+    <div class="form-group" id="group-benefits">
+      <label for="benefits">Benefits <span class="required">*</span></label>
+      <input type="text" id="benefits" name="benefits" placeholder="Health insurance, Paid leave"
+             value="{{ values.benefits|default:'' }}">
+      <div class="error-message" id="error-benefits">{{ errors.benefits }}</div>
+    </div>
+    <div class="form-group" id="group-full_location_address">
+      <label for="full_location_address">Full Address <span class="required">*</span></label>
+      <input type="text" id="full_location_address" name="full_location_address"
+             placeholder="Street, City"
+             value="{{ values.full_location_address|default:'' }}">
+      <div class="error-message" id="error-full_location_address">{{ errors.full_location_address }}</div>
+    </div>
+  </div>
+
+  <!-- Description -->
+  <div class="form-group" id="group-description">
+    <label for="description">Description <span class="required">*</span></label>
+    <textarea id="description" name="description" rows="4"
+              placeholder="Job overview…">{{ values.description|default:'' }}</textarea>
+    <div class="error-message" id="error-description">{{ errors.description }}</div>
+  </div>
+
+  <!-- Location Picker -->
+  <div class="form-group" id="group-map_location">
+    <label for="map_location">Work Location (Drag marker to adjust) <span class="required">*</span></label>
+    <div id="map" class="map-container" style="height: 300px; margin-bottom: 8px;"></div>
+    <input type="hidden" id="map_location" name="map_location" required
+           value="{{ values.map_location|default:'' }}">
+    <span class="help-text">
+      Allow browser to share your location for initial marker. Then drag the marker to the exact spot.
+    </span>
+    <div class="error-message" id="error-map_location">{{ errors.map_location }}</div>
+  </div>
+
+  <button type="submit" id="submit-btn" class="btn-submit" disabled>Save Changes</button>
+</form>
+{% endblock content %}
+
+{% block script %}
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="{% static 'employer_profile/js/location.js' %}"></script>
+<script src="{% static 'employer_profile/js/job_form.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function(){
+      const industry = document.getElementById('industry');
+      if(industry.value) {
+        industry.dispatchEvent(new Event('change'));
+      }
+    });
+  </script>
+{% endblock script %}

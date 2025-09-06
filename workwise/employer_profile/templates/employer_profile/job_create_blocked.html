@@ -1,0 +1,44 @@
+{% extends 'employer_profile/employer_base.html' %}
+{% block head %}
+  <style>
+    .blocked-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+      background: #FFF7ED;
+    }
+    .blocked-box {
+      text-align: center;
+      background: #FEF3C7;
+      color: #92400E;
+      padding: 2rem 3rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .blocked-box p {
+      font-size: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    .blocked-box a.btn {
+      background-color: #F59E0B;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 1rem;
+    }
+    .blocked-box a.btn:hover {
+      background-color: #D97706;
+    }
+  </style>
+{% endblock head %}
+
+{% block content %}
+  <div class="blocked-container">
+    <div class="blocked-box">
+      <p>{{ message }}</p>
+      <a href="{{ profile_url }}" class="btn">Go to Company Profile</a>
+    </div>
+  </div>
+{% endblock content %}

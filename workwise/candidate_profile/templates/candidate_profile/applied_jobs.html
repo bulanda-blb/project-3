@@ -1,0 +1,122 @@
+{% extends 'candidate_profile/candidate_base.html' %}
+{% load static %}
+
+{% block head %}
+<title>Applied Jobs</title>
+<link rel="stylesheet" href="{% static 'candidate_profile/css/applied_jobs.css' %}">
+
+{% endblock head %}
+
+{% block content %}
+  <h1>Manage &amp; View Your Applications</h1>
+
+  <form method="get" class="filter-form">
+    <div class="filters">
+      <label for="statusFilter">Status:</label>
+      <select name="status" id="statusFilter" onchange="this.form.submit()">
+        {% for value,label in status_choices %}
+          <option value="{{ value }}" {% if value == current_status %}selected{% endif %}>
+            {{ label }}
+          </option>
+        {% endfor %}
+      </select>
+
+      <label for="sortSelect">Sort:</label>
+      <select name="sort" id="sortSelect" onchange="this.form.submit()">
+        <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>
+          Newest First
+        </option>
+        <option value="oldest" {% if current_sort == 'oldest' %}selected{% endif %}>
+          Oldest First
+        </option>
+      </select>
+    </div>
+  </form>
+
+  {% if applications %}
+    <div class="applied-grid">
+      {% for app in applications %}
+        {% with job=app.job %}
+        <div class="applied-card">
+          <!-- LEFT SIDE -->
+          <div class="card-left">
+            <div class="job-header">
+              {% if job.employer.company_profile.logo %}
+                <img src="{{ job.employer.company_profile.logo.url }}"
+                     alt="{{ job.employer.company_name }} Logo"
+                     class="company-logo">
+              {% else %}
+                <img src="{% static 'images/default-logo.png' %}"
+                     alt="Logo" class="company-logo">
+              {% endif %}
+              <div class="job-info">
+                <h2 class="job-title">{{ job.title }}</h2>
+                <p class="company-name">{{ job.employer.company_name }}</p>
+              </div>
+            </div>
+            <p class="job-location">
+              <i class="fas fa-map-marker-alt"></i>
+              {{ job.full_location_address }}
+            </p>
+            <div class="job-meta">
+              <div><span class="label">Type:</span>
+                <span class="value">{{ job.work_type|capfirst }}</span>
+              </div>
+              <div><span class="label">Industry:</span>
+                <span class="value">{{ job.industry|cut:"_"|title }}</span>
+              </div>
+              <div><span class="label">Exp:</span>
+                <span class="value">{{ job.experience_min }}–{{ job.experience_max }} yrs</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT SIDE -->
+          <div class="card-right">
+            <div class="application-info">
+              <div><span class="label">Applied on:</span>
+                <span class="value">{{ app.applied_at|date:"M j, Y" }}</span>
+              </div>
+              <div><span class="label">Status:</span>
+                <span class="badge badge-{{ app.status }}">
+                  {{ app.get_status_display }}
+                </span>
+              </div>
+              {% if app.interview_at %}
+              <div><span class="label">Interview:</span>
+                <span class="value">{{ app.interview_at|date:"M j, Y, P" }}</span>
+              </div>
+              {% endif %}
+            </div>
+            <div class="actions">
+              <a href="{% url 'candidate:application_detail' app.id %}"
+                 class="details-btn">
+                View Details
+              </a>
+            </div>
+          </div>
+        </div>
+        {% endwith %}
+      {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      {% if applications.has_previous %}
+        <a href="?status={{ current_status }}&sort={{ current_sort }}&page={{ applications.previous_page_number }}">«</a>
+      {% endif %}
+      {% for num in applications.paginator.page_range %}
+        <a href="?status={{ current_status }}&sort={{ current_sort }}&page={{ num }}"
+          class="{% if applications.number == num %}active{% endif %}">
+          {{ num }}
+        </a>
+      {% endfor %}
+      {% if applications.has_next %}
+        <a href="?status={{ current_status }}&sort={{ current_sort }}&page={{ applications.next_page_number }}">»</a>
+      {% endif %}
+    </div>
+
+  {% else %}
+    <p>You haven't applied to any jobs yet.</p>
+  {% endif %}
+{% endblock %}

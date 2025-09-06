@@ -1,0 +1,80 @@
+
+
+
+{% load static %}
+<header class="jobplugin__header">
+    <div class="jobplugin__container">
+        <div class="jobplugin__header-holder">
+            <div class="jobplugin__header-left">
+                <!-- Logo of the Site -->
+                <strong class="jobplugin__header-logo">
+                    <a href="{% url 'index:home'%}">
+                        <img src="{% static 'images/logo.svg' %}" alt="Workwise">
+                    </a>
+                </strong>
+                
+            </div>
+            <div class="jobplugin__header-right">
+                <div class="jobplugin__navigation">
+                    <!-- Main Navigation Mobile Close -->
+                    <button type="button" class="jobplugin__navigation-close">
+                        <span class="jobplugin__bg-primary"></span>
+                        <span class="jobplugin__bg-primary"></span>
+                    </button>
+                    <!-- Main Navigation -->
+                    <nav class="jobplugin__nav">
+                        <ul>
+                            
+                            <li>
+                                <a href="#find-talent-section">Find Talent</a>
+                                
+                            </li>
+                            <li>
+                                <a href="{% url 'index:jobs_list'%}">Find Work</a>
+                                
+                            </li>
+                            <li><a href="#">Blogs</a></li>
+                            <li><a href="#">FAQ</a></li>
+                            <li><a href="#contact-list">Contact</a></li>
+                        </ul>
+                    </nav>
+                    <!-- Header Authentication Buttons -->
+                    {% if request.session.employer_id %}
+                    <div class="jobplugin__header-avatar" style="display: flex;align-items: center;padding: 0.5rem;">
+                        {# TODO: once you have real images, swap out the dummy below #}
+                        <a href="{% url 'employer:dashboard'%}"><img
+                        src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                        alt="User Avatar"
+                        style="width: 36px;height: 36px;border-radius: 50%;object-fit: cover;"
+                        class="avatar-circle"  ></a>
+                    </div>
+                    {% elif request.session.candidate_id  %}
+                    <div class="jobplugin__header-avatar" style="display: flex;align-items: center;padding: 0.5rem;">
+                        {# TODO: once you have real images, swap out the dummy below #}
+                        <a href="{% url 'candidate:dashboard'%}"><img
+                        src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                        alt="User Avatar"
+                        style="width: 36px;height: 36px;border-radius: 50%;object-fit: cover;"
+                        class="avatar-circle"  ></a>
+                    </div>
+                    {% else %}
+                    <div class="jobplugin__header-buttons">
+                        <a href="{% url 'auth:login'%}" class="jobplugin__button button-white jobplugin__text-primary hover:jobplugin__bg-primary hover:jobplugin__text-white">Login</a>
+                        <a href="{% url 'auth:signup'%}" class="jobplugin__button jobplugin__bg-primary hover:jobplugin__bg-secondary">Sign Up</a>
+                    </div>
+                    {% endif %}
+                </div>
+                <!-- Header Search Form Mobile Opener -->
+                <button type="button" class="jobplugin__header-form__opener jobplugin__text-primary hover:jobplugin__text-white hover:jobplugin__bg-primary">
+                    <span class="rj-icon rj-search"></span>
+                </button>
+                <!-- Main Navigation Mobile Opener -->
+                <button type="button" class="jobplugin__navigation-opener">
+                    <span class="jobplugin__bg-primary"></span>
+                    <span class="jobplugin__bg-primary"></span>
+                    <span class="jobplugin__bg-primary"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</header>

@@ -1,0 +1,97 @@
+.applications-page {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+.applications-page h2 {
+  margin-bottom: 24px;
+  color: #1e3a8a;
+}
+.sort-form {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.sort-form label {
+  margin-right: 8px;
+  font-weight: 600;
+}
+.sort-form select {
+  padding: 6px 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+}
+.rank-text {
+  font-size: large;
+  font-weight: bold;
+  padding-bottom: 5px;
+}
+
+/* 3-column grid */
+.applications-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.application-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.application-card h3 {
+  margin-top: 0;
+}
+.application-card .sub {
+  margin: 4px 0 8px;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+.application-card a {
+  color: #1e40af;
+  text-decoration: none;
+  font-weight: 600;
+}
+.application-card a:hover {
+  text-decoration: underline;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 40px;
+}
+.pagination a {
+  color: #1e40af;
+  text-decoration: none;
+}
+.pagination span {
+  font-size: 0.9rem;
+  color: #475569;
+}
+
+.no-applications {
+  text-align: center;
+  color: #64748b;
+  margin-top: 40px;
+}
+
+
+
+.btn-ranked {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #c09020;    
+  /* font-size: 1.25rem; */
+  margin-left: 40px;
+
+}
+.btn-ranked:hover {
+  color: #a07010;
+}

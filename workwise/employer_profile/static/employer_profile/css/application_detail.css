@@ -1,0 +1,136 @@
+/* static/employer_profile/css/application_detail.css */
+
+.app-detail-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 0 20px;
+  font-family: sans-serif;
+}
+.section {
+  margin-bottom: 24px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 16px;
+}
+.section h3 {
+  margin-top: 0;
+  color: #1e3a8a;
+}
+.job-info p,
+.candidate-info p {
+  margin: 4px 0;
+}
+.candidate-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.status {
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: white;
+  font-weight: bold;
+}
+.status-applied   { background: #6b7280; }
+.status-reviewing { background: #2563eb; }
+.status-interview { background: #f59e0b; }
+.status-offered   { background: #10b981; }
+.status-rejected  { background: #ef4444; }
+
+.previews {
+  display: flex;
+  gap: 24px;
+}
+.preview-block {
+  flex: 1;
+}
+.doc-preview {
+  width: 100%;
+  height: 400px;
+  border: 1px solid #ccc;
+}
+.img-preview {
+  max-width: 100%;
+  max-height: 400px;
+  border: 1px solid #ccc;
+  object-fit: contain;
+}
+
+.actions .btn {
+  margin-right: 12px;
+  padding: 8px 16px;
+  background: #1e3a8a;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.actions .btn-danger {
+  background: #ef4444;
+}
+.schedule-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.schedule-row input {
+  padding: 4px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+
+/* Buttons for View and Download links */
+.btn,
+.btn-outline {
+  display: inline-block;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  margin-right: 8px;
+  margin-top:5px;
+  cursor: pointer;
+}
+
+/* Solid primary button */
+.btn {
+  background-color: #1e3a8a;
+  color: #ffffff;
+  border: none;
+}
+.btn:hover {
+  background-color: #2563eb;
+}
+
+/* Outline button */
+.btn-outline {
+  background-color: transparent;
+  color: #1e3a8a;
+  border: 2px solid #1e3a8a;
+}
+.btn-outline:hover {
+  background-color: #1e3a8a;
+  color: #ffffff;
+  border-color: #1e3a8a;
+}
+
+/* Disabled state for Save button */
+#save-interview-btn.disabled,
+#save-interview-btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.error-text{
+  color: red;
+  display: inline-block;
+}

@@ -1,0 +1,468 @@
+:root {
+    --green: #108a00;
+    --dark-green: #113e0b;
+    --dk-green: #061504;
+    --colorPrimary: #e66f3b;
+    --colorDarkPrimary: #a13c10;
+    --colorLightPrimary: #fee0ab;
+    --bright-green: #13b601;
+    --pink: #fcf5eb;
+    --grayish: #9e9e9e;
+    --black: #000;
+    --light-green: #f6fff9;
+    --white: #fff;
+    --gray: #444;
+    --tertiary: var(--pink);
+    --bright: var(--bright-green);
+    --primary: var(--green);
+    --secondary: var(--dark-green);
+    --dark: var(--dk-green);
+}
+
+/* Primary Colors Utility Classes */
+
+.jobplugin__bg-primary,
+.hover\:jobplugin__bg-primary:hover,
+.parent-hover\:jobplugin__bg-primary:hover .icon-play,
+.jobplugin .ui-slider .ui-slider-range {
+    background: var(--primary) !important;
+}
+
+.jobplugin__text-primary,
+.hover\:jobplugin__text-primary:hover,
+.parent-hover\:jobplugin__text-primary:hover {
+    color: var(--primary) !important;
+}
+
+.jobplugin__border-primary,
+.hover\:jobplugin__border-primary:hover,
+.parent-hover\:jobplugin__border-primary:hover .icon-play {
+    border-color: var(--primary) !important;
+}
+
+/* Secondary Colors Utility Classes */
+
+.jobplugin__bg-secondary,
+.hover\:jobplugin__bg-secondary:hover {
+    background: var(--secondary) !important;
+}
+
+.jobplugin__text-secondary,
+.hover\:jobplugin__text-secondary:hover {
+    color: var(--secondary) !important;
+}
+
+.jobplugin__border-secondary,
+.hover\:jobplugin__border-secondary:hover {
+    border-color: var(--secondary) !important;
+}
+
+/* Background White */
+
+.jobplugin__bg-white {
+    color: var(--black);
+    border: 1px solid var(--grayish);
+    background: var(--white) !important;
+}
+
+.hover\:jobplugin__bg-white:hover {
+    color: var(--white);
+    border: 1px solid var(--primary);
+    background: var(--primary) !important;
+}
+
+/* Dark Colors Utility Classes */
+
+.jobplugin__bg-dark {
+    background: var(--dark) !important;
+}
+
+.jobplugin__border-dark {
+    border-color: var(--dark) !important;
+}
+
+.jobplugin__text-white {
+    color: var(--white) !important;
+}
+
+/* CSS Selector Colors */
+
+.hover\:jobplugin__text-white:hover {
+    color: var(--white) !important;
+}
+
+.jobplugin__nav ul li:hover,
+.jobplugin__nav ul li:hover>a,
+.jobplugin__steps-content .drop-zone .drop-zone__prompt strong,
+.jobplugin__steps-nav li.visited a,
+.jobplugin__steps-nav li.current a,
+.jobplugin__tabset-normal ul li.active a,
+.jobplugin__profile-ratings ul li.active,
+.jobplugin__accorion-opener:hover,
+.jobplugin__results-aside__box.active .jobplugin__results-aside__head {
+    color: var(--primary);
+}
+
+.jobplugin__nav ul li>ul li:hover>a,
+.jobplugin__tabset ul li.active>a,
+.jobplugin__tabset-secondary ul li.active>a,
+.jobplugin__slider .slick-dots .slick-active button::before,
+.jobplugin__usertype-radio input[type=radio]:checked+.jobplugin__usertype-radio__item .jobplugin__usertype-radio__btn,
+.jobplugin__form-checkbox input[type=checkbox]:checked+.jobplugin__form-checkbox__btn,
+.jobplugin__form-radio input[type=radio]:checked+.jobplugin__form-radio__btn,
+.jobplugin__dashboard-activity .h5::before,
+.chkbx-toggle:checked+label::before,
+.jobplugin__steps-nav li.visited::before,
+.jobplugin__steps-nav li.current::before,
+.jobplugin__steps-nav li .edit,
+.jobplugin__settings-menu ul li:hover>a,
+.jobplugin__settings-menu ul li.active>a,
+.jobplugin__settings-card__radio-box input[type=radio]:checked+.jobplugin__settings-card__custom-radio .jobplugin__settings-card__radio-box__button,
+.chkbx-toggle.chkbx-toggle-white:checked+label::before,
+.jobplugin__pagination li:hover:not(.disabled)>a,
+.jobplugin__pagination li.active:not(.disabled)>a,
+.jobplugin__results-aside__box.active .jobplugin__results-aside__button,
+.ui-slider .ui-slider-handle,
+.ui-slider .ui-slider-range,
+.jobplugin__results-aside--active .jobplugin__results-aside__opener,
+.jobplugin__messenger-message.reverse .jobplugin__messenger-message__text,
+.jobplugin__settings-bulletlist li::before,
+.jobplugin__catalog-gallery .slick-arrow:hover,
+.jobplugin__accorion-opener:hover .jobplugin__accorion-arrow,
+.jobplugin__accorion li.active .jobplugin__accorion-arrow,
+.jobplugin__openclose-opener:hover .jobplugin__openclose-arrow,
+.jobplugin__openclose.active .jobplugin__openclose-arrow,
+.jobplugin__results-aside__boxopener:hover .jobplugin__results-aside__button {
+    background: var(--primary);
+}
+
+.jobplugin__usertype-radio input[type=radio]:checked+.jobplugin__usertype-radio__item,
+.jobplugin__form-checkbox input[type=checkbox]:checked+.jobplugin__form-checkbox__btn,
+.jobplugin__form-radio input[type=radio]:checked+.jobplugin__form-radio__btn,
+.jobplugin__settings-menu ul li a,
+.jobplugin__settings-menu ul li:hover>a,
+.jobplugin__settings-menu ul li.active>a,
+.jobplugin__loader-animmte,
+.jobplugin__loader-animmte:after,
+.jobplugin__settings-card__radio-box input[type=radio]:checked+.jobplugin__settings-card__custom-radio,
+.jobplugin__settings-card__radio-box input[type=radio]:checked+.jobplugin__settings-card__custom-radio .jobplugin__settings-card__radio-box__button,
+.chkbx-toggle.chkbx-toggle-white:checked+label::before,
+.jobplugin__tabset-normal ul li.active a,
+.jobplugin__pagination li:hover:not(.disabled)>a,
+.jobplugin__pagination li.active:not(.disabled)>a,
+.jobplugin__results-aside__box.active .jobplugin__results-aside__head,
+.jobplugin__messenger-message.reverse .jobplugin__messenger-message__text,
+.jobplugin__catalog-gallery__image::before,
+.jobplugin__catalog-reviews.active,
+.jobplugin__accorion li.active {
+    border-color: var(--primary);
+}
+
+.jobplugin__nav ul li>ul li:hover .jobplugin__nav-arrow {
+    color: var(--white);
+}
+
+.jobplugin__pattern {
+    background-image: radial-gradient(var(--primary) 2px, transparent 3px);
+}
+
+.jobplugin__section-speciality__list-icon::before {
+    background: linear-gradient(135deg, var(--white) 0%, var(--bright) 50%, var(--bright) 100%);
+}
+
+.jobplugin__messenger-message.reverse .jobplugin__messenger-message__text::before,
+.jobplugin__messenger-message.reverse .jobplugin__messenger-message__text::after {
+    border-color: transparent transparent transparent var(--primary);
+}
+
+.jobplugin__messenger-form__input {
+    border-color: var(--primary) !important;
+}
+
+@media (max-width: 1199px) {
+    .jobplugin__nav ul li.has-dropdown.active,
+    .jobplugin__nav ul li.has-dropdown.active>a {
+        color: var(--primary);
+    }
+    .jobplugin__nav ul li>ul li.has-dropdown.active>a {
+        background: var(--primary);
+    }
+}
+
+/* Theme Base Color Styles */
+
+.btn.btn-primary,
+.btn.btn-green,
+.navigation>li>a.btn-info,
+.nav-tabs.nav-tabs-line li .nav-link.active::after,
+.social-networks li a:hover,
+.social-links li a:hover,
+.leadership-box .social-networks li a:hover,
+.accordion_list li button:not(.collapsed) .icon,
+.pagination .page-link:hover,
+.pagination .page-item.active .page-link,
+.section-theme-1 .pagination .page-item.active .page-link,
+.section-theme-1 .pagination .page-item .page-link:hover,
+.section-theme-6.learning-block.bg-light-sky .thumbs-list .thumbnail::before,
+.btn-app.btn-play-store,
+.section-theme-1.latest-news-block.latest-blog .news-post .btn.btn-green::before,
+.sidebar.sidebar-theme-1 .h5::after,
+.sidebar.sidebar-theme-1 .widget.widget_categories ul li a:hover,
+.widget .search-form .btn-search,
+.sidebar.sidebar-theme-1 .widget.widget_newsletter .search-form .btn-search,
+.post.singlepost-theme-1 ul li::before,
+.post.singlepost-theme-1 .social-share li a:hover,
+.post.singlepost-theme-1 .commentlist-item .comment-reply-link:hover,
+.bullet-list li::before,
+.section-about .video-box::before,
+.team-box .button-overplay .btn,
+.bg-overlay.bg-primary::after,
+.tagcloud>a:hover,
+.tweets-slider .slick-dots li button:hover,
+.tweets-slider .slick-dots li.slick-active button,
+.section-theme-1 .page-subheader .grid-buttons .btn.active,
+.section-theme-1 .page-subheader .grid-buttons .btn:hover,
+.ui-slider .ui-slider-range,
+.section-theme-1 .filter-box .ui-slider .ui-slider-handle,
+.section-theme-1 .filter-box .ui-slider .ui-slider-range,
+.custom-checkbox input[type=checkbox]:checked+.fake-checkbox,
+.custom-checkbox input[type=radio]:checked+.fake-checkbox,
+.candidate-info-list li::before,
+.related-categories.related-services .services-carousel .slick-arrow:hover,
+.progress-bar.bg-warning,
+.slick-dots li button:hover,
+.slick-dots li.slick-active button,
+.related-categories.section-quotes .quotes-slider .slick-arrow:hover,
+.quotes-box:hover,
+.job-details-header .utility-buttons .btn-tag:hover,
+.related-categories.section-categories .jobs-listing-slider .slick-arrow:hover,
+.related-categories.section-categories .featured-category-box:hover,
+.btn.btn-dark-yellow:hover,
+.contact-box .icon-holder,
+.section-theme-1 .package-box .icon,
+.account-box .icon,
+.account-box .contac-form .custom-checkbox input[type=checkbox]:checked+.fake-checkbox,
+.subvisual-theme-1.block-404 .btn-search:hover,
+.section-faqs .accordion .accordion-button:not(.collapsed) .bullet,
+.featured-category-box:hover,
+.page-subheader .grid-buttons .btn.active,
+.page-subheader .grid-buttons .btn:hover,
+.popular-jobs-box .btn-bookmark.active,
+.popular-jobs-box .btn-bookmark:hover,
+.jobs-card .btn.btn-green::before {
+    background: var(--colorPrimary) !important;
+}
+
+.post.singlepost-theme-1 blockquote::before,
+.breadcrumb-nav.bg-primary {
+    background-color: var(--colorPrimary) !important;
+}
+
+.commentlist .comment-reply-link,
+.entry-meta .icon,
+.widget ul li a:hover,
+.sidebar.sidebar-theme-1 .widget ul li a:hover,
+.recent-posts .date i,
+.leadership-box .number a:hover,
+.subvisual-theme-1 .breadcrumb-nav .breadcrumb a:hover,
+.section-theme-1.latest-news-block.latest-blog .news-post .h3 a:hover,
+.section-theme-1.latest-news-block.latest-blog .news-post .post-meta-wrap .post-meta li a:hover,
+.section-theme-1.latest-news-block.latest-blog .news-post .post-by a:hover,
+.sidebar.sidebar-theme-1 .recent-posts .title a:hover,
+.sidebar.sidebar-theme-1 .recent-posts .date i,
+.sidebar.sidebar-theme-1 .widget.widget_categories ul li:hover .count,
+.post.singlepost-theme-1 .post-author-info .post-by a:hover,
+.post.singlepost-theme-1 blockquote cite span,
+.post.singlepost-theme-1 .post-tags .title,
+.post.singlepost-theme-1 .tagcloud>a:hover,
+.text-link,
+.counters-block .icon,
+.section-header h2 .text-primary,
+.team-box h3 a:hover,
+.featured-team .team-box .subtext,
+.service-box .icon-holder,
+.news-post:hover h3 a,
+.post-footer .read-more:hover,
+.gallery-slider .news-post .h5 a:hover,
+.gallery-slider .news-post h4 a:hover,
+.candidate-box .pin-job:hover,
+.candidate-box h2 a:hover,
+.company-info-box .company-contact-list>li .ico,
+.about-list li .subtext a:hover,
+.sorting-list li a:hover,
+.sorting-list li.active a,
+.check-list li::before,
+.num-list li::before,
+.featured-box:hover h3,
+.featured-box .stats-list .icon,
+.featured-box .pin-job:hover,
+.contact-box a:hover,
+.contact-support .contact-box .icon-holder,
+.contact-support .contact-box a:hover,
+.account-box .contac-form .link:hover,
+.subvisual-theme-1.block-404 h1,
+.section-theme-1 .filters-sidebar .filters-sidebar-Head .btn-clear:hover,
+.section-theme-1 .filter-box .buttonShowMore:hover,
+.featured-box h3 a:hover,
+.service-box h3 a:hover,
+.top-bar .hotline .icon-hotline,
+.top-bar .hotline a:hover,
+.top-bar .social-links-top a:hover {
+    color: var(--colorPrimary) !important;
+}
+
+.btn.btn-green,
+.leadership-box .social-networks li a:hover,
+.pagination .page-link:hover,
+.pagination .page-item.active .page-link,
+.section-theme-1 .pagination .page-item.active .page-link,
+.section-theme-1 .pagination .page-item .page-link:hover,
+.section-theme-1 .pagination .page-item:first-child .page-link,
+.section-theme-1 .pagination .page-item:last-child .page-link,
+.section-theme-1 .pagination .page-item:first-child .page-link:hover,
+.section-theme-1 .pagination .page-item:last-child .page-link:hover,
+.sidebar.sidebar-theme-1 .widget.widget_categories ul li .count,
+.video-box .btn-play .icon-play,
+.post blockquote,
+.tagcloud>a:hover,
+.section-theme-1 .page-subheader .grid-buttons .btn.active,
+.section-theme-1 .page-subheader .grid-buttons .btn:hover,
+.ui-slider .ui-slider-handle,
+.section-theme-1 .filter-box .ui-slider .ui-slider-handle,
+.custom-checkbox input[type=checkbox]:checked+.fake-checkbox,
+.custom-checkbox input[type=radio]:checked+.fake-checkbox,
+.candidate-box:hover,
+.candidate-box:hover .icon-box,
+.candidate-info-list li::after,
+.candidate-box:hover .stats-list,
+.quotes-box:hover,
+.job-details-header .utility-buttons .btn-tag:hover,
+.featured-box:hover,
+.contact-support .contact-box .icon-holder,
+.section-theme-1 .package-box .icon,
+.account-box .contac-form .custom-checkbox input[type=checkbox]:checked+.fake-checkbox,
+.page-subheader .grid-buttons .btn.active,
+.page-subheader .grid-buttons .btn:hover,
+.popular-jobs-box .btn-bookmark.active,
+.popular-jobs-box .btn-bookmark:hover {
+    border-color: var(--colorPrimary) !important;
+}
+
+.video-box .btn-play .icon-play::before {
+    border-left-color: var(--colorPrimary) !important;
+}
+
+/* Theme Base Dark Color Styles */
+
+.subvisual-block,
+.section-theme-1 .matched-jobs-block,
+.widget .search-form .btn-search:hover,
+.sidebar.sidebar-theme-1 .widget.widget_newsletter .search-form .btn-search:hover,
+.post.singlepost-theme-1 .post-author,
+.section-theme-1 .package-box.bg-dark-green,
+.section-theme-1.packages-block.option-styles .package-box.bg-dark-green,
+.team-box .button-overplay::before {
+    background: var(--colorDarkPrimary) !important;
+}
+
+.commentlist .comment-reply-link:hover,
+.breadcrumb a:hover,
+.text-link:hover {
+    color: var(--colorDarkPrimary) !important;
+}
+
+/* Theme Base Light Color Styles */
+
+.how-work-box .icon,
+.section-theme-6.learning-block.bg-light-sky .text-info-slider::before,
+.matched-jobs-block::before,
+.quotes-box .social-icon {
+    background: var(--colorLightPrimary) !important;
+}
+
+.section-theme-6.learning-block.bg-light-sky .text-info-slider,
+.quotes-box .author-avatar {
+    border-color: var(--colorLightPrimary) !important;
+}
+
+.quotes-box {
+    -webkit-box-shadow: 0 10px 0 var(--colorLightPrimary) !important;
+    box-shadow: 0 10px 0 var(--colorLightPrimary) !important;
+}
+
+.section-theme-6.learning-block.bg-light-sky .thumbs-list .thumbnail::before,
+.section-about .video-box::before,
+.team-box .button-overplay::before {
+    opacity: 0.85;
+}
+
+/* General Inherit Color Styles */
+
+.btn.btn-green:hover::before,
+.navigation>li>a.btn-info:hover:before,
+.btn.btn-primary:hover::before,
+.candidate-box:hover .btn.btn-primary::before,
+.btn.btn-dark-yellow:hover::before,
+.featured-box:hover .btn.btn-primary::before {
+    background: rgba(0, 0, 0, 0.25);
+}
+
+.job-details-header .social-networks li a:hover {
+    background: transparent !important;
+}
+
+
+/* Overlay */
+.video-modal {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 10000;
+  padding: 20px; 
+  align-items: center;
+  justify-content: center;
+}
+
+/* Modal box */
+.video-modal-content {
+  position: relative;
+  width: 90%;
+  max-width: 960px;
+  max-height: 80vh;
+  background: #000; /* black behind video */
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+/* Video iframe */
+.video-modal-content iframe {
+  width: 100%;
+  height: calc(80vh - 50px); /* leave room for close button */
+  border: none;
+  border-radius: 6px;
+  display: block;
+}
+
+/* Close button */
+.video-modal-close {
+  position: absolute;
+  top: 10px; 
+  right: 10px;
+  width: 32px; 
+  height: 32px;
+  line-height: 32px;
+  text-align: center;
+  font-size: 24px;
+  color: #fff;
+  background: rgba(0,0,0,0.6);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.video-modal-close:hover {
+  background: rgba(255,255,255,0.2);
+}
+

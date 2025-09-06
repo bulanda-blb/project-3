@@ -1,0 +1,167 @@
+{% extends 'employer_profile/employer_base.html' %}
+{% load static %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'employer_profile/css/interview_applications.css' %}">
+<link
+    rel="preload"
+    href="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"
+    as="image"
+  >
+  <title>Meeting applications</title>
+{% endblock head %}
+
+{% block content %}
+<h2 class="page-title">Interview Scheduled Applications</h2>
+
+<div class="applications-grid">
+    {% for app in applications %}
+    <div class="application-card">
+        <div class="card-header">
+            {% if app.candidate.profile_picture %}
+                <img
+                    src="{{ app.candidate.profile_picture.url }}"
+                    alt="Profile"
+                    class="candidate-avatar"
+                >
+                {% else %}
+                <img
+                    src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"
+                    alt="Default Avatar"
+                    class="candidate-avatar"
+                >
+            {% endif %}
+
+            <div class="info">
+                <h3>{{ app.candidate.first_name }} {{ app.candidate.last_name }}</h3>
+                <p><strong>Job:</strong> {{ app.job.title }} ({{ app.job.job_id }})</p>
+                <p><strong>Applied At:</strong> {{ app.applied_at|date:"M d, Y H:i" }}</p>
+                <p><strong>Interview At:</strong> {{ app.interview_at|date:"M d, Y H:i" }}</p>
+            </div>
+        </div>
+        {% if app.meeting_message and app.meeting_link %}
+            <a href="{% url 'employer:application_detail' app.id %}" class="btn-view-detail">
+               <button class="btn-send-meeting">view details</button>
+            </a>
+            <small class="meeting-message-sent">Meeting link already sent to candidate, for {{ app.interview_at|date:"M d, Y P" }}</small>
+            {% else %}
+            <button
+                class="btn-send-meeting"
+                onclick="openPopup('{{ app.id }}')">
+                Send Meeting Link
+            </button>
+        {% endif %}
+
+        <!-- Popup Form -->
+        <div class="popup-form" id="popup-{{ app.id }}">
+            <div class="popup-content">
+                <span class="close-btn" onclick="closePopup('{{ app.id }}')">&times;</span>
+                <h4>Send Meeting Link to {{ app.candidate.first_name }}</h4>
+                <form method="post" action="{% url 'employer_profile:send_meeting' app.id %}">
+                    {% csrf_token %}
+                    <label>Message:</label>
+                    <textarea name="message" required></textarea>
+                    <label>Meeting Link:</label>
+                    <input type="url" name="meeting_link" required>
+                    <div class="popup-actions">
+                        <button type="submit">Send</button>
+                        <button type="button" onclick="closePopup('{{ app.id }}')">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+<div class="pagination">
+    {% if applications.has_previous %}
+        <a href="?page={{ applications.previous_page_number }}">&laquo; Prev</a>
+    {% endif %}
+    <span>Page {{ applications.number }} of {{ applications.paginator.num_pages }}</span>
+    {% if applications.has_next %}
+        <a href="?page={{ applications.next_page_number }}">Next &raquo;</a>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.popup-form').forEach(popup => {
+    const form         = popup.querySelector('form');
+    const messageInput = form.querySelector('textarea[name="message"]');
+    const linkInput    = form.querySelector('input[name="meeting_link"]');
+    const sendBtn      = form.querySelector('button[type="submit"]');
+
+    // create error container if not exists
+    let errorDiv = form.querySelector('.validation-error');
+    if (!errorDiv) {
+      errorDiv = document.createElement('div');
+      errorDiv.className = 'validation-error';
+      errorDiv.style.color = 'red';
+      errorDiv.style.marginBottom = '0.5rem';
+      form.insertBefore(errorDiv, form.firstChild);
+    }
+
+    const validate = () => {
+      let error = '';
+      const msg  = messageInput.value.trim();
+      const link = linkInput.value.trim();
+
+      if (!msg || !link) {
+        error = 'Both message and meeting link are required.';
+      } else if (!/^https:\/\/.+/.test(link)) {
+        error = 'Meeting link must start with https://';
+      } else {
+        // Optional: restrict to known meeting domains
+        const allowedDomains = ['zoom.us','zoom.com', 'meet.google.com', 'teams.microsoft.com'];
+        try {
+          const host = new URL(link).hostname;
+          if (!allowedDomains.some(d => host.includes(d))) {
+            error = 'Link must be a Zoom, Google Meet, or Teams URL.';
+          }
+        } catch (e) {
+          error = 'Meeting link is not a valid URL.';
+        }
+      }
+
+      if (error) {
+        sendBtn.disabled = true;
+        sendBtn.style.opacity = '0.6';
+        sendBtn.style.cursor = 'not-allowed';
+        errorDiv.textContent = error;
+      } else {
+        sendBtn.disabled = false;
+        sendBtn.style.opacity = '1';
+        sendBtn.style.cursor = 'pointer';
+        errorDiv.textContent = '';
+      }
+    };
+
+    // initialize button state
+    sendBtn.disabled = true;
+    sendBtn.style.opacity = '0.6';
+    sendBtn.style.cursor = 'not-allowed';
+
+    // attach listeners
+    messageInput.addEventListener('input', validate);
+    linkInput.addEventListener('input', validate);
+    form.addEventListener('submit', e => {
+      validate();
+      if (sendBtn.disabled) e.preventDefault();
+    });
+  });
+});
+
+function openPopup(id) {
+  document.getElementById(`popup-${id}`).style.display = 'flex';
+}
+
+function closePopup(id) {
+  document.getElementById(`popup-${id}`).style.display = 'none';
+}
+
+</script>
+{% endblock script %}

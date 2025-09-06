@@ -1,0 +1,92 @@
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #f8fafc;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.header {
+  background-color: rgb(231, 220, 208);
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content:space-between;
+  
+}
+.header_main_logo{
+  margin-left: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header_content{
+  margin-right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content:flex-start;
+}
+
+.header-logo img {
+  width: 150px;
+  height: 60px;
+}
+
+.logo {
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.menu-icon {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: rgb(12, 11, 11);
+  cursor: pointer;
+}
+
+.sidebar {
+  position: fixed;
+  top: 60px;
+  left: -260px;
+  width: 250px;
+  height: 100%;
+  background-color: #1e3a8a;
+  color: white;
+  transition: left 0.3s ease;
+  z-index: 999;
+}
+.sidebar a{
+    text-decoration: none;
+    color: white;
+}
+.sidebar.active {
+  left: 0;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+
+
+
+.sidebar li {
+  padding: 15px 20px;
+  cursor: pointer;
+  border-left: 5px solid transparent;
+}
+
+.sidebar li:hover,
+.sidebar li.active {
+  background-color: #2563eb;
+  border-left: 5px solid #93c5fd;
+}
+
+.main-content {
+  padding: 20px;
+  margin-left: 0;
+}
+
+

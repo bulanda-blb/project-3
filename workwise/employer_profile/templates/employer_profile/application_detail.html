@@ -1,0 +1,159 @@
+{# templates/employer_profile/application_detail.html #}
+{% extends 'employer_profile/employer_base.html' %}
+{% load static %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'employer_profile/css/application_detail.css' %}">
+<title>Application: {{ app.candidate.first_name }} {{ app.candidate.last_name }}</title>
+{% endblock head %}
+
+{% block content %}
+<div class="app-detail-container">
+
+  <h2>Application Detail</h2>
+
+  <div class="section job-info">
+    <h3>Job</h3>
+    <p><strong>{{ job.title }}</strong> (ID: {{ job.job_id }})</p>
+    <p>Posted: {{ job.posted_at|date:"M j, Y" }} | Deadline: {{ job.application_deadline }}</p>
+  </div>
+
+  <div class="section candidate-info">
+    <h3>Candidate</h3>
+    <div class="candidate-header">
+      {% if app.candidate.profile_picture %}
+        <img src="{{ app.candidate.profile_picture.url }}" class="avatar">
+      {% else %}
+        <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="avatar">
+      {% endif %}
+      <div>
+        <p><strong>{{ app.candidate.first_name }} {{ app.candidate.last_name }}</strong></p>
+        <p>{{ app.candidate.email }}</p>
+        <p>Applied at: {{ app.applied_at|date:"M j, Y, P" }}</p>
+        <p>Status: <span class="status status-{{ app.status }}">{{ app.get_status_display }}</span></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section previews">
+    <div class="preview-block">
+    <h4>CV</h4>
+    {% if app.candidate.cv %}
+        {# Show filename #}
+        <p>{{ app.candidate.cv.cv_file.name }}</p>
+
+        {# “View” opens in a new tab, “Download” uses the download attribute #}
+        <a href="{{ app.candidate.cv.cv_file.url }}"
+        target="_blank"
+        class="btn btn-outline">
+        View CV
+        </a>
+        <a href="{{ app.candidate.cv.cv_file.url }}"
+        download
+        class="btn">
+        Download CV
+        </a>
+    {% else %}
+        <p>No CV uploaded.</p>
+    {% endif %}
+    </div>
+
+    <div class="preview-block">
+    <h4>Cover Letter</h4>
+    {% if app.cover_letter %}
+        <p>{{ app.cover_letter.name }}</p>
+        <a href="{{ app.cover_letter.url }}"
+        target="_blank"
+        class="btn btn-outline">
+        View Cover Letter
+        </a>
+        <a href="{{ app.cover_letter.url }}"
+        download
+        class="btn">
+        Download Cover Letter
+        </a>
+    {% else %}
+        <p>No cover letter uploaded.</p>
+    {% endif %}
+    </div>
+
+
+  </div>
+
+  <div class="section actions">
+  <h3>Actions</h3>
+  <div id="error-interview" class="error-text">{{ error_date }}</div>
+  <form method="post">
+    {% csrf_token %}
+    {% if app.status == 'applied' %}
+      <button name="action" value="review" class="btn">Accept for Process</button>
+      <button name="action" value="reject"  class="btn btn-danger">Reject</button>
+    {% elif app.status == 'reviewing' %}
+      <div class="schedule-row">
+        
+        <label for="interview_at">Schedule Interview:</label>
+        <input type="datetime-local" name="interview_at" id="interview_at" required>
+        <button name="action" value="schedule" id="save-interview-btn" class="btn">Save</button>
+      </div>
+      <button name="action" value="reject" class="btn btn-danger">Reject</button>
+    {% elif app.status == 'interview' %}
+      <button name="action" value="offer" class="btn">Extend Offer</button>
+      <button name="action" value="reject" class="btn btn-danger">Reject</button>
+    {% elif app.status == 'offered' or app.status == 'rejected' %}
+      <p>No further actions available.</p>
+    {% endif %}
+    </form>
+    </div>
+
+
+</div>
+{% endblock content %}
+
+{% block script %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const dtInput = document.getElementById('interview_at');
+  const saveBtn = document.getElementById('save-interview-btn');
+  const errDiv  = document.getElementById('error-interview');
+
+  function validateDate() {
+    const val = dtInput.value;
+    if (!val) {
+      // No input yet
+      errDiv.textContent = '';
+      saveBtn.disabled = true;
+      saveBtn.classList.add('disabled');
+      return;
+    }
+    const selected = new Date(val);
+    const now = new Date();
+    if (selected < now) {
+      errDiv.textContent = 'Interview date/time cannot be in the past.';
+      saveBtn.disabled = true;
+      saveBtn.classList.add('disabled');
+    } else {
+      errDiv.textContent = '';
+      saveBtn.disabled = false;
+      saveBtn.classList.remove('disabled');
+    }
+  }
+
+  dtInput.addEventListener('input', validateDate);
+  // initialize on load
+  validateDate();
+});
+</script>
+
+
+
+<script>
+    // static/employer_profile/js/application_detail.js
+document.addEventListener('DOMContentLoaded', () => {
+  const schedRow = document.querySelector('.schedule-row');
+  if (schedRow) {
+    schedRow.querySelector('input').focus();
+  }
+});
+
+</script>
+{% endblock script %}

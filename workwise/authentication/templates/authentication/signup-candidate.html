@@ -1,0 +1,149 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{% static 'css/vendors.css' %}">
+    <link media="all" rel="stylesheet" href="{% static 'css/jobplugin.css' %}">
+    <link media="all" rel="stylesheet" href="{% static 'css/theme-color.css' %}">
+    <title>Signup Candidate</title>
+</head>
+<body class="jobplugin">
+    <!-- main container of all the page elements -->
+    <div class="jobplugin__wrapper">
+        <!-- Page Loader -->
+        <div class="jobplugin__loader">
+            <div class="jobplugin__loader-animmte"></div>
+            <div class="jobplugin__loader-logo">
+                <img src="{% static 'images/favicon.png' %}" alt="Loading....">
+            </div>
+        </div>
+
+        <!-- Header of the Page -->
+        {% include "includes/header.html" %}
+
+        <!-- Contain Main informative part of the Site -->
+        <main class="jobplugin__main">
+            <div class="jobplugin__main-holder">
+                <span class="jobplugin__pattern default-right"></span>
+                <span class="jobplugin__pattern default-left"></span>
+                <div class="jobplugin__visual-pattern">
+                    <img src="{% static 'images/visual-pattern.png' %}" alt="Image Description">
+                </div>
+                <div class="jobplugin__container">
+                    <!-- User Box -->
+                    <div class="jobplugin__userbox">
+                        <span class="jobplugin__userbox-bar jobplugin__bg-primary"></span>
+                        <h1 class="jobplugin__text-secondary h3">Sign up To Find Work</h1>
+                        <!-- User Form Option Buttons -->
+                        
+                        <div class="jobplugin__userbox-seperator">
+                            <span>o</span>
+                        </div>
+                        <!-- User Box Form -->
+                        <form action="{% url 'auth:signup_candidate' %}" method="POST" id="candidate-signup-form">
+                            {% csrf_token %}
+
+                            <!-- Error display placeholder -->
+                            <p id="form-error-message" style="color: red; font-size: small; margin-bottom: 5px;"></p>
+                            {% if errors %}
+                                <ul id="server-errors" style="color: red; font-size: small; margin-bottom:5px;">
+                                {% for err in errors %}
+                                    <li>{{ err }}</li>
+                                {% endfor %}
+                                </ul>
+                                <script>
+                                setTimeout(() => {
+                                    const el = document.getElementById('server-errors');
+                                    if (el) el.style.display = 'none';
+                                }, 10000);  // hide after 10 seconds
+                                </script>
+                            {% endif %}
+                            <div class="jobplugin__form">
+                                <!-- First & Last Name -->
+                                <div class="jobplugin__form-row">
+                                    <div class="jobplugin__form-field">
+                                        <input type="text" name="first_name" placeholder="First Name" value="{{ form_data.first_name }}">
+                                    </div>
+                                    <div class="jobplugin__form-field">
+                                        <input type="text" name="last_name" placeholder="Last Name" value="{{ form_data.last_name }}">
+                                    </div>
+                                </div>
+                                <!-- Email -->
+                                <div class="jobplugin__form-row">
+                                    <div class="jobplugin__form-field">
+                                        <input type="email" name="email" placeholder="Email Address" value="{{ form_data.email }}">
+                                    </div>
+                                </div>
+                                <!-- Password & Confirm -->
+                                <div class="jobplugin__form-row">
+                                    <div class="jobplugin__form-field">
+                                        <input type="password" name="password" placeholder="Password (6–16 chars)">
+                                    </div>
+                                </div>
+                                <div class="jobplugin__form-row">
+                                    <div class="jobplugin__form-field">
+                                        <input type="password" name="confirm_password" placeholder="Re-enter Password">
+                                    </div>
+                                </div>
+                                <!-- Email Notify -->
+                                <div class="jobplugin__form-row">
+                                    <div class="jobplugin__form-field">
+                                        <label class="jobplugin__form-checkbox">
+                                            <input type="checkbox" name="email_notify" {% if form_data.email_notify %} checked {% endif %}>
+                                            <span class="jobplugin__form-checkbox__btn"></span>
+                                        </label>
+                                        <span class="label-text">
+                                            Send me helpful emails to find rewarding work and job leads.
+                                        </span>
+                                    </div>
+                                </div>
+                                <!-- Agree Terms -->
+                                <div class="jobplugin__form-row">
+                                    <div class="jobplugin__form-field">
+                                        <label class="jobplugin__form-checkbox">
+                                            <input type="checkbox" name="agree_terms" {% if form_data.agree_terms %}checked{% endif %}>
+                                            <span class="jobplugin__form-checkbox__btn"></span>
+                                        </label>
+                                        <span class="label-text">
+                                            Yes, I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="jobplugin__userbox-button">
+                                <button type="submit" class="jobplugin__button large jobplugin__bg-primary" disabled style="opacity: 0.5;">
+                                    Join as a Candidate
+                                </button>
+                            </div>
+                        </form>
+
+                        <p class="jobplugin__userbox-textinfo">Already have an account? <a class="hover:jobplugin__text-primary" href="{% url 'auth:login'%}">Log In</a></p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <!-- Footer of the Page -->
+        {% include "includes/footer.html" %}
+    </div>
+
+<script src="{% static 'authentication/js/signup-candidate.js'%}"></script>    
+    <!-- jQuery Library -->
+<script src="{% static 'js/jquery-3.6.4.min.js' %}"></script>
+<!-- jQuery Plugins File -->
+<script src="{% static 'js/vendor.js' %}"></script>
+<!-- jQuery Functions JS File -->
+<script src="{% static 'js/jquery.main.js' %}"></script>
+</body>
+
+</html>

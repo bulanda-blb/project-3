@@ -1,0 +1,95 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{% static 'css/vendors.css' %}">
+    <link media="all" rel="stylesheet" href="{% static 'css/jobplugin.css' %}">
+    <link media="all" rel="stylesheet" href="{% static 'css/theme-color.css' %}">
+    <title>Signup</title>
+</head>
+
+<body class="jobplugin">
+    <!-- main container of all the page elements -->
+    <div class="jobplugin__wrapper">
+        <!-- Page Loader -->
+        <div class="jobplugin__loader">
+            <div class="jobplugin__loader-animmte"></div>
+            <div class="jobplugin__loader-logo">
+                <img src="{% static 'images/favicon.png' %}" alt="Loading....">
+            </div>
+        </div>
+
+
+        <!-- Header of the Page -->
+        {% include "includes/header.html"%}
+        
+        <!-- Contain Main informative part of the Site -->
+        <main class="jobplugin__main">
+            <div class="jobplugin__main-holder">
+                <span class="jobplugin__pattern default-right"></span>
+                <span class="jobplugin__pattern default-left"></span>
+                <div class="jobplugin__visual-pattern">
+                    <img src="{% static 'images/visual-pattern.png' %}" alt="Image Description">
+                </div>
+                <div class="jobplugin__container">
+                    <!-- User Box -->
+                    <div class="jobplugin__userbox">
+                        <span class="jobplugin__userbox-bar jobplugin__bg-primary"></span>
+                        <h1 class="jobplugin__text-secondary h3">Join as a Employer or job seeker</h1>
+                        <!-- User Box Form -->
+                        <form action="#">
+                            <div class="jobplugin__userbox-condition">
+                                <!-- Form User Type Options -->
+                                <div class="jobplugin__usertype">
+                                    <label class="jobplugin__usertype-radio">
+										<input type="radio" name="group" checked>
+										<span class="jobplugin__usertype-radio__item">
+											<span class="jobplugin__usertype-radio__btn"></span>
+											For Employer
+										</span>
+									</label>
+                                    <label class="jobplugin__usertype-radio">
+										<input type="radio" name="group">
+										<span class="jobplugin__usertype-radio__item">
+											<span class="jobplugin__usertype-radio__btn"></span>
+											for Job Seeker
+										</span>
+									</label>
+                                </div>
+                                <!-- User Form Option Buttons -->
+                                <div class="jobplugin__userbox-button">
+                                    <a href=" {% url 'auth:signup_employer' %}"><button type="button" class="button-employee jobplugin__button large jobplugin__bg-primary hover:jobplugin__bg-secondary">Join as a Employer</button></a>
+
+                                    <a href="{% url 'auth:signup_candidate' %}"> <button type="button" class="button-freelancer jobplugin__button large jobplugin__bg-primary hover:jobplugin__bg-secondary">Join as a Job Seeker</button></a>
+                                </div>
+                            </div>
+                        </form>
+                        
+                        <p class="jobplugin__userbox-textinfo">Already have an account? <a class="hover:jobplugin__text-primary" href="#">Log In</a></p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <!-- Footer of the Page -->
+        {% include "includes/footer.html" %}
+    </div>
+    
+    
+    <!-- jQuery Library -->
+<script src="{% static 'js/jquery-3.6.4.min.js' %}"></script>
+<!-- jQuery Plugins File -->
+<script src="{% static 'js/vendor.js' %}"></script>
+<!-- jQuery Functions JS File -->
+<script src="{% static 'js/jquery.main.js' %}"></script>
+</body>
+
+</html>

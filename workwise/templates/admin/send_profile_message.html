@@ -1,0 +1,36 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}Send Message to Employers{% endblock %}
+
+{% block content %}
+  <div class="container" style="max-width: 800px; margin: 2rem auto;">
+    <h1>Send Custom Email</h1>
+    <form method="post">{% csrf_token %}
+      <input type="hidden" name="selected" value="{{ selected }}">
+      <p>You are about to email the following employers:</p>
+      <ul>
+        {% for prof in profiles %}
+          <li>
+            <strong>{{ prof.employer.company_name }}</strong>
+            &ndash; {{ prof.employer.email }}
+          </li>
+        {% endfor %}
+      </ul>
+      <div style="margin-top:1rem;">
+        <label for="id_message"><strong>Message:</strong></label><br>
+        <textarea
+          name="message"
+          id="id_message"
+          rows="6"
+          style="width:100%; padding:0.5rem; border:1px solid #ccc;"
+          required
+        ></textarea>
+      </div>
+      <div style="margin-top:1.5rem;">
+        <button type="submit" class="default">Send Email</button>
+        <a href="{% url 'admin:employer_profile_companyprofile_changelist' %}" class="button">Cancel</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}

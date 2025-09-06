@@ -1,0 +1,39 @@
+.explore-hero {
+  text-align: center;
+  padding: 40px 20px;
+  background: #f1f5f9;
+}
+.explore-hero h1 {
+  margin-bottom: 20px;
+  font-size: 2rem;
+  color: #1e3a8a;
+}
+.explore-search-form {
+  display: inline-flex;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.explore-search-form input {
+  padding: 8px 12px;
+  font-size: 1rem;
+  border: none;
+  width: 300px;
+}
+.explore-search-form input:focus {
+  outline: none;
+}
+.explore-search-form button {
+  background: #8f99bd;
+  color: white;
+  border: none;
+  padding: 0 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  border-radius: 10%;
+  margin-left: 20px;
+}
+.explore-search-form button i {
+  font-size: 1.1rem;
+}

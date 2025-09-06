@@ -1,0 +1,56 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="{% static 'candidate_profile/css/candidate_base.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  {% block head %}{% endblock head %}
+</head>
+<body>
+
+  <!-- Header -->
+<div class="header">
+    <div class="header_main_logo">
+      <button id="toggleSidebar" class="menu-icon"><i class="fas fa-bars"></i></button>
+      
+      <div class="header-logo">
+          <a href="{% url 'index:home'%}">
+            <img src="{% static 'images/logo.svg' %}" alt="Workwise">
+          </a>
+      </div>
+    </div>
+  <div class="header_content">
+    
+    <div class="logo">WorkWise - Candidate</div>
+    
+  </div>  
+</div>
+
+
+<div id="sidebar" class="sidebar">
+  <ul>
+    <a href="{% url 'candidate:dashboard'%}" class="sidebar-logout"><li class="active"><i class="fas fa-home"></i> Dashboard</li></a>
+    <a href="{% url 'candidate:profile_manage'%}" class="sidebar-logout"><li><i class="fas fa-user"></i> My Profile</li></a>
+    <a href="{% url 'candidate:upload_cv'%}" class="sidebar-logout"><li><i class="fas fa-upload"></i> Upload CV</li></a>
+    <a href="{% url 'candidate:applied_jobs'%}" class="sidebar-logout"><li><i class="fas fa-briefcase"></i> Applied Jobs</li></a>
+    <a href="{% url 'candidate:saved_jobs'%}" class="sidebar-logout"><li><i class="fas fa-bookmark"></i> Saved Jobs</li></a>
+    <a href="{% url 'candidate:interview_list'%}" class="sidebar-logout"><li><i class="fas fa-calendar-check"></i> Interview Scheduled</li></a>
+    <a href="{% url 'candidate:skill_gap'%}" class="sidebar-logout"><li><i class="fas fa-gem fa-sm" style="color:#DAA520;"></i>  Skill Gap Analysis</li></a>
+    <a href="{% url 'candidate:premium_recommendations'%}" class="sidebar-logout"><li><i class="fas fa-gem fa-sm" style="color:#DAA520;"></i>  Personalized Recom*</li></a>
+    <a href="{% url 'candidate:premium'%}" class="sidebar-logout"><li><i class="fas fa-crown fa-sm" style="color:#DAA520;"></i>  Premium Subscription</li></a>
+    <a href="{% url 'candidate:logout'%}" class="sidebar-logout"><li><i class="fas fa-sign-out-alt"></i> Logout</li></a>
+  </ul>
+</div>
+
+<main class="main-content">
+    {% block content %}
+
+    {% endblock content %}
+</main>
+{% block script %}
+{% endblock script %}
+<script src="{% static 'candidate_profile/js/candidate_base.js' %}"></script>
+</body>
+</html>

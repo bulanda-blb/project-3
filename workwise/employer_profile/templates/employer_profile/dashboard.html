@@ -1,0 +1,224 @@
+{% extends 'employer_profile/employer_base.html' %}
+{% load static %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'employer_profile/css/dashboard.css' %}">
+  <link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+/>
+
+  <title>Employer Dashboard</title>
+{% endblock head %}
+
+{% block content %}
+  <h2 class="page-title">Welcome, {{ employer.company_name }}!</h2>
+
+  <!-- 1) Summary Cards -->
+  <div class="cards-grid">
+    <div class="card">
+      <i class="fas fa-briefcase card-icon"></i>
+      <div class="card-info">
+        <h3>{{ total_posts }}</h3>
+        <p>Total Posts</p>
+      </div>
+    </div>
+    <div class="card">
+      <i class="fas fa-eye card-icon"></i>
+      <div class="card-info">
+        <h3>{{ active_posts }}</h3>
+        <p>Active Listings</p>
+      </div>
+    </div>
+    <div class="card">
+      <i class="fas fa-clock card-icon"></i>
+      <div class="card-info">
+        <h3>{{ pending_posts }}</h3>
+        <p>Pending Review</p>
+      </div>
+    </div>
+    <div class="card">
+      <i class="fas fa-times-circle card-icon"></i>
+      <div class="card-info">
+        <h3>{{ closed_posts }}</h3>
+        <p>Closed Posts</p>
+      </div>
+    </div>
+    <div class="card">
+      <i class="fas fa-file-alt card-icon"></i>
+      <div class="card-info">
+        <h3>{{ total_apps }}</h3>
+        <p>Applications Rec’d</p>
+      </div>
+    </div>
+    <div class="card">
+      <i class="fas fa-calendar-check card-icon"></i>
+      <div class="card-info">
+        <h3>{{ interviews_sch }}</h3>
+        <p>Interviews Scheduled</p>
+      </div>
+    </div>
+    <div class="card">
+      <i class="fas fa-handshake card-icon"></i>
+      <div class="card-info">
+        <h3>{{ offers_ext }}</h3>
+        <p>Offers Extended</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2) Charts Row -->
+  <div class="charts-row">
+    <div class="chart-card">
+      <h4>Application Status</h4>
+      <canvas id="statusChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <h4>Apps Over Time</h4>
+      <canvas id="activityChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <h4>Top 5 Jobs</h4>
+      <canvas id="topJobsChart"></canvas>
+    </div>
+  </div>
+
+  <!-- 3) Top Upcoming Interviews -->
+  <div class="upcoming-section">
+    <h4>Next Interviews</h4>
+    {% if upcoming %}
+      <ul>
+        {% for app in upcoming %}
+        <li>
+          {{ app.interview_at|date:"M d, Y h:i A" }} — 
+          {{ app.candidate.first_name }} {{ app.candidate.last_name }} 
+          for <em>{{ app.job.title }}</em>
+          <a href="{% url 'employer:application_detail' app.id %}" class="btn-detail">
+            View Details
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No interviews scheduled.</p>
+    {% endif %}
+  </div>
+
+  <!-- 4) Company Profile Completeness -->
+<div class="profile-section">
+  <h4>Company Profile</h4>
+
+  <!-- Segmented “jar” bar -->
+  <div class="progress-bar jar">
+    {% for seg in profile_segments %}
+      <div
+        class="segment {% if seg.done %}filled{% endif %}"
+        style="width: {{ seg.width }}%;"
+        title="{{ seg.name }}: {% if seg.done %}✔{% else %}✘{% endif %}"
+      ></div>
+    {% endfor %}
+  </div>
+
+  <!-- Labels & icons under each slice -->
+  <div class="progress-labels">
+    {% for seg in profile_segments %}
+      <div class="label-seg" style="width: {{ seg.width }}%;">
+        <i class="fas {% if seg.done %}fa-check-circle complete-icon{% else %}fa-times-circle incomplete-icon{% endif %}"></i>
+        <span class="label-text">{{ seg.name }}</span>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Overall percentage -->
+  <p class="percentage">{{ profile_completeness }}% Complete</p>
+
+  <!-- Toggle link vs. completion message -->
+  {% if profile_completeness == 100 %}
+    <div class="complete-message">
+      <i class="fas fa-check-circle"></i>
+      Your company profile is complete!
+    </div>
+  {% else %}
+    <a href="{% url 'employer:profile_manage' %}" class="btn-complete">
+      Complete Profile
+    </a>
+  {% endif %}
+</div>
+
+{% endblock content %}
+
+{% block script %}
+  <!-- 1) Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- 2) Inline chart setup -->
+  <script>
+    const statusLabels   = {{ status_labels|safe }};
+    const statusData     = {{ status_data  |safe }};
+    const activityLabels = {{ activity_labels|safe }};
+    const activityData   = {{ activity_data  |safe }};
+    const topJobsLabels  = {{ top_jobs_labels|safe }};
+    const topJobsData    = {{ top_jobs_data  |safe }};
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Status doughnut
+      new Chart(
+        document.getElementById('statusChart').getContext('2d'),
+        {
+          type: 'doughnut',
+          data: {
+            labels: statusLabels,
+            datasets: [{ data: statusData }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            aspectRatio: 1,
+            plugins: { legend: { position: 'bottom' } }
+          }
+        }
+      );
+
+      // Activity line
+      new Chart(
+        document.getElementById('activityChart').getContext('2d'),
+        {
+          type: 'line',
+          data: {
+            labels: activityLabels,
+            datasets: [{
+              label: 'Applications',
+              data: activityData,
+              fill: false,
+              tension: 0.3
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: { y: { beginAtZero: true } }
+          }
+        }
+      );
+
+      // Top Jobs bar
+      new Chart(
+        document.getElementById('topJobsChart').getContext('2d'),
+        {
+          type: 'bar',
+          data: {
+            labels: topJobsLabels,
+            datasets: [{
+              label: '# Applicants',
+              data: topJobsData
+            }]
+          },
+          options: {
+            indexAxis: 'y',
+            responsive: true,
+            scales: { x: { beginAtZero: true } }
+          }
+        }
+      );
+    });
+  </script>
+{% endblock script %}

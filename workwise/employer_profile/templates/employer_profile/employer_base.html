@@ -1,0 +1,61 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="{% static 'employer_profile/css/employer_base.css' %}" />
+    {% block head %}{% endblock head %}
+</head>
+<body>
+
+    <!-- Header -->
+<header class="header">
+  <div class="header-left">
+    <button id="toggleSidebar" class="menu-icon"><i class="fas fa-bars"></i></button>
+    <a href="{% url 'index:home' %}" class="logo-link">
+      <img src="{% static 'images/logo.svg' %}" alt="WorkWise Logo" class="logo-img" />
+    </a>
+  </div>
+  <nav class="header-nav">
+    <a href="{% url 'employer:dashboard'%}">Home</a>
+    <a href="{% url 'employer:manage_jobs'%}">Jobs</a>
+    
+    
+    
+  </nav>
+  <div class="user-info">
+    <img src="{% static 'images/user-avatar.jpg' %}" alt="User Avatar" class="user-avatar" />
+    <span>Employer</span>
+  </div>
+</header>
+
+<!-- Sidebar -->
+<aside id="sidebar" class="sidebar">
+  <ul>
+    <a href="{% url 'employer:dashboard'%}"><li class="active"><i class="fa fa-home"></i> Dashboard</li></a>
+    <a href="{% url 'employer:profile_manage'%}"><li><i class="fa fa-user"></i> Profile</li></a>
+    <a href="{% url 'employer:manage_jobs'%}"><li><i class="fa fa-briefcase"></i> Job Management</li></a>
+    <a href="{% url 'employer:interview_applications'%}"><li><i class="fa fa-video"></i> Meetings</li></a>
+    <a href="{% url 'employer_profile:job_create'%}" class="sidebar-link"><li><i class="fas fa-gem fa-sm" style="color:#DAA520;"></i> Post a Job</li></a>
+    <a href="{% url 'employer:premium'%}"><li><i class="fas fa-crown fa-sm" style="color:#DAA520;"></i> Premium Subscription</li></a>
+    <a href="{% url 'employer:logout' %}"><li><i class="fa fa-sign-out-alt"></i> Logout</li></a>
+  </ul>
+</aside>
+
+
+  <!-- Main Content -->
+<main class="main-content">
+    {% block content %}
+
+    {% endblock %}
+</main>
+
+
+    {% block script %}{% endblock script %}
+
+  <script src="{% static 'employer_profile/js/employer_base.js' %}"></script>
+</body>
+</html>

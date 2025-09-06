@@ -1,0 +1,396 @@
+{% extends 'candidate_profile/candidate_base.html' %}
+{% load static %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'candidate_profile/css/upload_cv.css' %}">
+{% endblock %}
+
+{% block content %}
+<main class="cv-upload-container">
+  
+
+  <!-- ERROR MESSAGE -->
+  {% if error %}
+    <div class="error-msg">{{ error }}</div>
+  {% endif %}
+
+  <!-- UPLOAD FORM (only when NOT parsed) -->
+  {% if not parsed and not cv_obj.parsed_data %}
+  <form method="post" enctype="multipart/form-data" id="upload-form">
+    {% csrf_token %}
+    <label for="cv_file">Please Upload Your CV (PDF, DOCX) To Apply For Jobs:</label>
+    <input
+        type="file"
+        name="cv_file"
+        id="cv_file"
+        accept=".pdf,.docx,image/*"
+    >
+    <div id="file-preview" class="file-preview"></div>
+    <button
+        type="submit"
+        id="parse-btn"
+        class="btn disabled"
+        disabled
+    >
+        <i class="fas fa-file-upload"></i> Submit &amp; Parse
+    </button>
+
+    
+
+  </form>
+
+  {% endif %}
+
+
+  {# … earlier upload form … #}
+
+{% if parsed %}
+<section class="review-section">
+  <h2>Review your Parsed Data</h2>
+
+  <form
+    action="{% url 'candidate:upload_cv' %}"
+    method="post"
+    class="review-form"
+  >
+    {% csrf_token %}
+
+    {# hidden JSON blob #}
+    <textarea
+      name="parsed_json"
+      style="display:none;"
+    >{{ parsed_json }}</textarea>
+
+    <label>Full Name:
+      <input type="text" name="name" value="{{ parsed.name }}">
+    </label>
+
+    <label>Email:
+      <input type="email" name="email" value="{{ parsed.email }}">
+    </label>
+
+    <label>Phone:
+      <input type="text" name="phone" value="{{ parsed.phone }}">
+    </label>
+
+    <label>Address:
+      <input type="text" name="address" value="{{ parsed.address }}">
+    </label>
+
+    <label>Summary:
+      <textarea name="summary">{{ parsed.summary }}</textarea>
+    </label>
+
+    <label>Skills (comma-separated):
+      <input type="text" name="skills" value="{{ parsed.skills|join:', ' }}">
+    </label>
+
+    <label>Certifications (comma):
+      <input type="text" name="certifications" value="{{ parsed.certifications|join:', ' }}">
+    </label>
+
+    <label>Languages (comma):
+      <input type="text" name="languages" value="{{ parsed.languages|join:', ' }}">
+    </label>
+
+    <label>Education (one per line):
+      <textarea name="education">{{ parsed.education|join:'\n' }}</textarea>
+    </label>
+
+    <label>Experience (one per line):
+      <textarea name="experience">{{ parsed.experience|join:'\n' }}</textarea>
+    </label>
+
+    <label>Achievements (one per line):
+      <textarea name="achievements">{{ parsed.achievements|join:'\n' }}</textarea>
+    </label>
+
+    <h3>Projects</h3>
+    {% for p in parsed.projects %}
+      <div class="project-entry">
+        <label>Project Name:
+          <input
+            type="text"
+            name="projects-{{ forloop.counter0 }}-name"
+            value="{{ p.name }}"
+          >
+        </label>
+        <label>Description:
+          <textarea
+            name="projects-{{ forloop.counter0 }}-description"
+          >{{ p.description }}</textarea>
+        </label>
+      </div>
+    {% endfor %}
+
+    <button type="submit" name="action" value="save" id="parse-save-btn" class="btn save-btn">
+      <i class="fas fa-save"></i> Save CV
+    </button>
+  </form>
+</section>
+{% endif %}
+
+
+
+  <!-- DISPLAY SAVED CV & DATA if already parsed -->
+{% if cv_obj.parsed_data and not parsed %}
+<section class="saved-section">
+  <h2>Your Saved CV</h2>
+  <div class="saved-cv-container">
+
+    <!-- CV Details & Parsed Data -->
+    <div class="cv-details">
+      <p><strong>File:</strong> 
+        <a href="{{ cv_obj.cv_file.url }}" target="_blank">
+          {{ cv_obj.cv_file.name }}
+        </a>
+      </p>
+      <p><strong>Last parsed:</strong> 
+        {{ cv_obj.parsed_at|date:"M j, Y, P" }}
+      </p>
+
+      <h3>Parsed Information</h3>
+      {% with data=cv_obj.parsed_data %}
+      <ul class="parsed-info">
+        {% if data.name %}
+          <li><strong>Name:</strong> {{ data.name }}</li>
+        {% endif %}
+        {% if data.email %}
+          <li><strong>Email:</strong> {{ data.email }}</li>
+        {% endif %}
+        {% if data.phone %}
+          <li><strong>Phone:</strong> {{ data.phone }}</li>
+        {% endif %}
+        {% if data.address %}
+          <li><strong>Address:</strong> {{ data.address }}</li>
+        {% endif %}
+        {% if data.summary %}
+          <li><strong>Summary:</strong> {{ data.summary }}</li>
+        {% endif %}
+        {% if data.skills %}
+          <li><strong>Skills:</strong> {{ data.skills|join:", " }}</li>
+        {% endif %}
+        {% if data.certifications %}
+          <li><strong>Certifications:</strong> {{ data.certifications|join:", " }}</li>
+        {% endif %}
+        {% if data.languages %}
+          <li><strong>Languages:</strong> {{ data.languages|join:", " }}</li>
+        {% endif %}
+        {% if data.education %}
+          <li>
+            <strong>Education:</strong>
+            <ul>
+              {% for edu in data.education %}
+                <li>{{ edu }}</li>
+              {% endfor %}
+            </ul>
+          </li>
+        {% endif %}
+        {% if data.experience %}
+          <li>
+            <strong>Experience:</strong>
+            <ul>
+              {% for exp in data.experience %}
+                <li>{{ exp }}</li>
+              {% endfor %}
+            </ul>
+          </li>
+        {% endif %}
+        {% if data.projects %}
+          <li>
+            <strong>Projects:</strong>
+            <ul>
+              {% for p in data.projects %}
+                <li>
+                  {% if p.name %}<strong>{{ p.name }}:</strong> {% endif %}
+                  {{ p.description }}
+                </li>
+              {% endfor %}
+            </ul>
+          </li>
+        {% endif %}
+        {% if data.hobbies %}
+          <li><strong>Hobbies:</strong> {{ data.hobbies|join:", " }}</li>
+        {% endif %}
+        {% if data.achievements %}
+          <li>
+            <strong>Achievements:</strong>
+            <ul >
+              {% for a in data.achievements %}
+                <li>{{ a }}</li>
+              {% endfor %}
+            </ul>
+          </li>
+
+        {% endif %}
+      </ul>
+      {% endwith %}
+          <button id="clear-cv-btn" class="btn clear-btn">
+            Clear Your CV Data
+          </button>
+
+          <div id="clear-cv-modal" class="modal">
+            <div class="modal-content">
+              <span class="modal-close">&times;</span>
+              <p>Are you sure you want to remove your uploaded CV and parsed data?</p>
+              <div class="modal-actions">
+                <button id="confirm-clear-cv" class="btn confirm-btn">Yes</button>
+                <button id="cancel-clear-cv"  class="btn cancel-btn">Cancel</button>
+              </div>
+            </div>
+          </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+   <!-- Loading overlay, hidden by default -->
+<div id="loading-overlay" class="loading-overlay">
+  <div class="loading-content">
+    <div class="spinner"></div>
+    <p>Parsing your CV, please wait…</p>
+  </div>
+</div>
+
+
+{% endblock %}
+
+{% block script %}
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const overlay    = document.getElementById('loading-overlay');
+  const uploadForm = document.getElementById('upload-form');
+
+  uploadForm.addEventListener('submit', () => {
+    overlay.classList.add('active');
+  });
+});
+</script>
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const fileIn   = document.querySelector('input[type="file"]');
+  const preview  = document.getElementById('file-preview');
+  const parseBtn = document.getElementById('parse-btn');
+
+  fileIn.addEventListener('change', () => {
+    preview.innerHTML = '';
+    const f = fileIn.files[0];
+    if (!f) return disableBtn();
+    // Validate size
+    if (f.size > 2*1024*1024) {
+      preview.textContent = 'File too large (max 2MB).';
+      return disableBtn();
+    }
+    // Validate type
+    const allowed = ['application/pdf','application/vnd.openxmlformats-officedocument.wordprocessingml.document','image/jpeg','image/png'];
+    if (!allowed.includes(f.type)) {
+      preview.textContent = 'Only PDF, DOCX, JPG or PNG allowed.';
+      return disableBtn();
+    }
+    // Preview
+    if (f.type.startsWith('image/')) {
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(f);
+      preview.appendChild(img);
+    } else {
+      const obj = document.createElement('object');
+      obj.data = URL.createObjectURL(f);
+      obj.type = f.type;
+      obj.width = '100%';
+      obj.height = '200';
+      preview.appendChild(obj);
+    }
+    enableBtn();
+  });
+
+  function disableBtn() {
+    parseBtn.disabled = true;
+    parseBtn.classList.add('disabled');
+  }
+  function enableBtn() {
+    parseBtn.disabled = false;
+    parseBtn.classList.remove('disabled');
+  }
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const clearBtn = document.getElementById('clear-cv-btn');
+  const modal    = document.getElementById('clear-cv-modal');
+  const close    = modal.querySelector('.modal-close');
+  const cancel   = document.getElementById('cancel-clear-cv');
+  const confirm  = document.getElementById('confirm-clear-cv');
+  const clearUrl = "{% url 'candidate:clear_cv' %}";
+
+  clearBtn.addEventListener('click', () => {
+    modal.style.display = 'flex';
+  });
+  [close, cancel].forEach(btn =>
+    btn.addEventListener('click', () => modal.style.display = 'none')
+  );
+  confirm.addEventListener('click', () => {
+    window.location.href = clearUrl;
+  });
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const form    = document.querySelector('.review-form');
+  const saveBtn = form.querySelector('.save-btn');
+
+  // Create an error message container at the top of the form
+  const errorMsg = document.createElement('div');
+  errorMsg.className = 'error-msg';
+  errorMsg.style.display = 'none';
+  errorMsg.style.color = '#d63031';
+  errorMsg.style.marginBottom = '1rem';
+  form.prepend(errorMsg);
+
+  // Collect all visible inputs and textareas except the hidden parsed_json
+  const fields = Array.from(
+    form.querySelectorAll('input[type="text"], input[type="email"], textarea')
+  ).filter(el => el.name !== 'parsed_json');
+
+  function validate() {
+    let allFilled = true;
+
+    fields.forEach(field => {
+      // If the user truly has no experience, they must type '0'
+      if (field.name === 'experience' && field.value.trim() === '') {
+        field.value = '0';
+      }
+      if (field.value.trim() === '') {
+        allFilled = false;
+      }
+    });
+
+    if (allFilled) {
+      saveBtn.disabled = false;
+      saveBtn.classList.remove('disabled');
+      errorMsg.style.display = 'none';
+    } else {
+      saveBtn.disabled = true;
+      saveBtn.classList.add('disabled');
+      errorMsg.textContent = 'Please fill in all fields before saving.';
+      errorMsg.style.display = 'block';
+    }
+  }
+
+  // Validate on every input/change
+  fields.forEach(field => {
+    field.addEventListener('input', validate);
+    field.addEventListener('change', validate);
+  });
+
+  // Initial validation run
+  validate();
+});
+</script>
+
+
+{% endblock script %}

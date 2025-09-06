@@ -1,0 +1,281 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{% static 'css/vendors.css' %}">
+    <link media="all" rel="stylesheet" href="{% static 'css/jobplugin.css' %}">
+    <link media="all" rel="stylesheet" href="{% static 'css/theme-color.css' %}">
+    <title>Email Verification</title>
+    <style>
+      .jobplugin__userbox input[type="text"] {
+        width: 50%; margin: 10px 0;
+        border: 1px solid #ddd; border-radius: 6px; padding: 10px;
+        display:inline;
+      }
+    </style>
+</head>
+<body class="jobplugin" data-show-loc-prompt="{{ show_loc_prompt|yesno:'1,0' }}">
+  <div class="jobplugin__wrapper">
+    {% include "includes/header.html" %}
+    <main class="jobplugin__main">
+      <div class="jobplugin__container">
+        <div class="jobplugin__userbox">
+          <span class="jobplugin__userbox-bar jobplugin__bg-primary"></span>
+          <h2 class="jobplugin__text-secondary h3">Verify Your Email</h2>
+
+          {% if resend %}
+            <p>We’ve resent the code to 
+          {% else %}
+            <p>We’ve sent a 6-digit code to 
+          {% endif %}
+            <strong id="display-email">{{ email }}</strong>
+            <!-- Pencil icon via Unicode -->
+            <span id="editEmailBtn" title="Edit Email" style="cursor:pointer; margin-left:5px;">✏</span>
+          </p>
+
+          {% if error %}
+            <p id="otpError" style="color:red; font-size:small;">{{ error }}</p>
+          {% endif %}
+
+          <p id="locationError"
+             style="color:red; font-size:small; display:none; margin-bottom:10px;"></p>
+          <p id="locationInfo" style="color:green; font-size:small; display:none; margin-bottom:10px;"></p>
+
+          <form id="verify-form" method="post" action="{% url 'auth:verify_email_candidate' %}">
+            {% csrf_token %}
+            <input type="text" name="verification_code"
+                   placeholder="Enter 6-digit Code" required maxlength="6"
+                   style="padding:10px; display:inline; font-size:16px;">
+            <input type="hidden" name="latitude" id="latitude">
+            <input type="hidden" name="longitude" id="longitude">
+            <div class="jobplugin__userbox-button" style="margin-top:10px;">
+              <button type="submit" name="verify_submit"
+                      class="jobplugin__button jobplugin__bg-primary" style="width=20%;">
+                Verify
+              </button>
+            </div>
+          </form>
+
+          <div style="margin-top:15px;">
+            <p id="timer-text">Resend available in <span id="timer">{{ resend_cooldown }}</span>sec</p>
+            <form method="post" action="{% url 'auth:resend_code_candidate' %}" style="display:inline;">
+              {% csrf_token %}
+              <button id="resendBtn" name="resend_submit" disabled
+                      class="jobplugin__button jobplugin__bg-secondary">
+                Resend Code
+              </button>
+            </form>
+          </div>
+
+          <!-- Edit-Email Modal -->
+          <div id="editEmailModal"
+               style="display:none; position:fixed; top:30%; left:70%;
+                      transform:translateX(-50%); background:#fff;
+                      padding:20px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.3); z-index:1000;">
+            <span id="closeModal" style="cursor:pointer; float:right; font-size:20px;">&times;</span>
+            <form id="editEmailForm" method="post"
+                  action="{% url 'auth:verify_email_candidate' %}"
+                  style="margin-top:20px;">
+                  <p id="modalError"
+                 style="color:red; font-size:small; display:none;"></p>
+              {% csrf_token %}
+              <input type="hidden" name="edit_email" value="1">
+              <input type="email" id="newEmailInput" name="new_email"
+                     placeholder="New email address"
+                     style="width:100%; margin-bottom:10px; padding:8px;">
+              
+              <button type="submit" class="jobplugin__button jobplugin__bg-primary">
+                Update Email
+              </button>
+            </form>
+          </div>
+
+        </div>
+      </div>
+    </main>
+    {% include "includes/footer.html" %}
+  </div>
+
+  <!-- jQuery Library -->
+<script src="{% static 'js/jquery-3.6.4.min.js' %}"></script>
+<!-- jQuery Plugins File -->
+<script src="{% static 'js/vendor.js' %}"></script>
+<!-- jQuery Functions JS File -->
+<script src="{% static 'js/jquery.main.js' %}"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const otpError = document.getElementById('otpError');
+  if (otpError) {
+    setTimeout(() => {
+      otpError.style.display = 'none';
+    }, 10000);
+  }
+});
+</script>
+
+
+  <!-- 1) Geolocation Logic -->
+ <script>
+(function(){
+  const latInput    = document.getElementById('latitude');
+  const lngInput    = document.getElementById('longitude');
+  const locErr      = document.getElementById('locationError');
+  const locInfo     = document.getElementById('locationInfo');
+  const form        = document.getElementById('verify-form');
+  const showOnce    = document.body.dataset.showLocPrompt === '1';
+  let gotLoc        = false;
+
+  function showError(msg) {
+    locErr.textContent = msg;
+    locErr.style.display = 'block';
+    setTimeout(() => locErr.style.display = 'none', 10000);
+  }
+  function showInfo(msg) {
+    if (!locInfo) return;
+    locInfo.textContent = msg;
+    locInfo.style.display = 'block';
+    setTimeout(() => locInfo.style.display = 'none', 10000);
+  }
+
+  function requestLocation() {
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        latInput.value = pos.coords.latitude;
+        lngInput.value = pos.coords.longitude;
+        gotLoc = true;
+        if (showOnce) {
+          showInfo('Location access granted. you can change it in settings !!');
+        }
+      },
+      err => {
+        const m = err.code === err.PERMISSION_DENIED
+          ? 'Location permission denied. Please enable it in browser settings.'
+          : 'Error getting location. Please try again.';
+        showError(m);
+      }
+    );
+  }
+
+  // Check permission state
+  if (navigator.permissions) {
+    navigator.permissions.query({name:'geolocation'}).then(res => {
+      if (res.state==='granted' || res.state==='prompt') {
+        requestLocation();
+      } else {
+        showError('Location access is blocked. Enable it in browser settings.');
+      }
+      res.onchange = () => {
+        requestLocation();
+      };
+    });
+  } else {
+    requestLocation();
+  }
+
+  // Block form until location
+  form.addEventListener('submit', e => {
+    if (!gotLoc) {
+      showError('Cannot verify without location. Please allow access.');
+      e.preventDefault();
+    }
+  });
+})();
+</script>
+
+
+
+  <!-- 2) Edit-Email Modal Logic -->
+  <script>
+(function(){
+  const editBtn   = document.getElementById('editEmailBtn'),
+        modal     = document.getElementById('editEmailModal'),
+        closeBtn  = document.getElementById('closeModal'),
+        form      = document.getElementById('editEmailForm'),
+        input     = document.getElementById('newEmailInput'),
+        errP      = document.getElementById('modalError'),
+        emailRe   = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  // Show modal
+  editBtn.addEventListener('click', ()=>{
+    modal.style.display = 'block';
+    input.value = '';
+    errP.style.display = 'none';
+    errP.textContent = '';
+  });
+
+  // Hide modal
+  closeBtn.addEventListener('click', ()=> modal.style.display = 'none');
+  window.addEventListener('click', e=>{
+    if (e.target === modal) modal.style.display='none';
+  });
+
+  // Real-time format check
+  input.addEventListener('input', ()=>{
+    if (!emailRe.test(input.value.trim())) {
+      errP.textContent = 'enter a valid email address';
+      errP.style.display = 'block';
+    } else {
+      errP.textContent = '';
+      errP.style.display = 'none';
+    }
+  });
+
+  // Final pre-submit check
+  form.addEventListener('submit', e=>{
+    if (!emailRe.test(input.value.trim())) {
+      e.preventDefault();
+      errP.textContent = 'enter a valid email address';
+      errP.style.display = 'block';
+    }
+  });
+})();
+</script>
+
+
+<!-- 3) OTP-Error & Resend Timer -->
+  <script>
+// Immediately invoked function
+(function(){
+  let secondsLeft = {{ resend_cooldown }};
+  const timerEl    = document.getElementById('timer');
+  const timerText  = document.getElementById('timer-text');
+  const resendBtn  = document.getElementById('resendBtn');
+
+  function enableResend() {
+    resendBtn.disabled = false;
+    resendBtn.style.opacity = 1;
+    resendBtn.style.cursor  = 'pointer';
+    timerText.textContent = "Didn't get the code?";
+    timerEl.textContent  = 0;
+  }
+
+  if (secondsLeft > 0) {
+    resendBtn.disabled = true;
+    resendBtn.style.opacity = 0.6;
+    resendBtn.style.cursor  = 'not-allowed';
+    timerEl.textContent = secondsLeft;
+    const interval = setInterval(() => {
+      secondsLeft--;
+      timerEl.textContent = secondsLeft;
+      if (secondsLeft <= 0) {
+        clearInterval(interval);
+        enableResend();
+      }
+    }, 1000);
+  } else {
+    enableResend();
+  }
+})();
+</script>
+
+
+</body>
+</html>

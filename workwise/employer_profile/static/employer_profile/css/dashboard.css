@@ -1,0 +1,193 @@
+.page-title {
+  font-size: 1.75rem;
+  margin: 1.5rem 0;
+  color: #333;
+}
+
+/* Summary cards */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.card {
+  background: #fff;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.card-icon {
+  font-size: 2rem;
+  color: #007bff;
+  margin-right: 0.75rem;
+}
+.card-info h3 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+.card-info p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #555;
+}
+
+/* Charts row */
+.charts-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+.chart-card {
+  background: #fff;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.chart-card h4 {
+  margin-top: 0;
+  font-size: 1.1rem;
+  color: #444;
+}
+/* enforce square canvases */
+.chart-card canvas {
+  width: 100%  !important;
+  aspect-ratio: 1/1;
+  display: block;
+}
+
+/* Upcoming Interviews */
+.upcoming-section {
+  background: #fff;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.upcoming-section ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.upcoming-section li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #ececec;
+}
+.upcoming-section li:last-child {
+  border-bottom: none;
+}
+.btn-detail {
+  background: #007bff;
+  color: #fff;
+  text-decoration: none;
+  padding: 0.3rem 0.6rem;
+  border-radius: 0.3rem;
+  font-size: 0.85rem;
+}
+
+/* Company Profile Completeness */
+.profile-section {
+  background: #fff;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  text-align: center;
+}
+.profile-section h4 {
+  margin-bottom: 5px;
+}
+/* Container for the jar‐style bar */
+.profile-section .jar {
+  display: flex;
+  border: 2px solid #007bff;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  height: 1rem;
+  background: #fff;
+}
+
+/* Segmented bar slices */
+.profile-section .jar .segment {
+  height: 100%;
+  transition: background 0.3s;
+}
+
+/* Slice 1: Description */
+.profile-section .jar .segment.filled:nth-child(1) {
+  background: #6c5ce7;  /* purple */
+}
+/* Slice 2: Logo Uploaded */
+.profile-section .jar .segment.filled:nth-child(2) {
+  background: #00b894;  /* green */
+}
+/* Slice 3: Website Set */
+.profile-section .jar .segment.filled:nth-child(3) {
+  background: #0984e3;  /* blue */
+}
+/* Slice 4: Phone Number */
+.profile-section .jar .segment.filled:nth-child(4) {
+  background: #fdcb6e;  /* yellow/orange */
+}
+
+
+/* Labels & icons below */
+.profile-section .progress-labels {
+  display: flex;
+  margin-top: 0.5rem;
+}
+.profile-section .label-seg {
+  text-align: center;
+  font-size: 0.75rem;
+  color: #555;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.profile-section .label-seg .complete-icon {
+  color: #28a745;
+  font-size: 1rem;
+}
+.profile-section .label-seg .incomplete-icon {
+  color: #d63031;
+  font-size: 1rem;
+}
+.profile-section .label-seg .label-text {
+  margin-top: 0.25rem;
+}
+
+/* Percentage text */
+.profile-section .percentage {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+/* Completion message */
+.profile-section .complete-message {
+  display: flex;
+  align-items: center;
+  margin-top: 0.75rem;
+  color: #28a745;
+  font-weight: bold;
+}
+.profile-section .complete-message i {
+  margin-right: 0.5rem;
+}
+
+/* Button style (unstyled in this snippet, reuse your existing .btn-complete) */
+
+.btn-complete {
+  display: inline-block;
+  margin-top: 0.5rem;
+  background: #007bff;
+  color: #fff;
+  text-decoration: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.3rem;
+}

@@ -1,0 +1,542 @@
+{% extends 'employer_profile/employer_base.html' %}
+{% load static %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'employer_profile/css/profile.css' %}">
+{{ block.super }}
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+/>
+
+
+<title>Company Profile</title>
+{% endblock head %}
+
+{% block content %}
+<div >
+    {# — Flash message for errors or success — #}
+    {% if errors.top %}
+    <div id="flash-message" class="flash-error">
+        {% for msg in errors.top.values %}
+        <p>{{ msg }}</p>
+        {% endfor %}
+    </div>
+    {% elif errors.password %}
+    <div id="flash-message" class="flash-error">
+        {% for msg in errors.password.values %}
+        <p>{{ msg }}</p>
+        {% endfor %}
+    </div>
+    {% elif errors.logo %}
+    <div id="flash-message" class="flash-error">
+        {% for msg in errors.logo.values %}
+        <p>{{ msg }}</p>
+        {% endfor %}
+    </div>
+    {% elif errors.verify %}
+    <div id="flash-message" class="flash-error">
+        {% for msg in errors.verify.values %}
+        <p>{{ msg }}</p>
+        {% endfor %}
+    </div>
+    {% elif errors.details %}
+    <div id="flash-message" class="flash-error">
+        {% for msg in errors.details.values %}
+        <p>{{ msg }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% for section, ok in success.items %}
+    {% if ok %}
+        <div id="flash-message" class="flash-success">
+        {% if section == 'top' %}
+            Company name &amp; email updated successfully.
+        {% elif section == 'password' %}
+            Password changed successfully. Please log in again.
+        {% elif section == 'logo' %}
+            Logo uploaded successfully.
+        {% elif section == 'verify' %}
+            Certificate uploaded successfully – pending review.
+        {% elif section == 'details' %}
+            Company details updated successfully.
+        {% endif %}
+        </div>
+    {% endif %}
+    {% endfor %}
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+            const flash = document.getElementById('flash-message');
+            if (!flash) return;
+            // After 10s, fade out and remove
+            setTimeout(() => {
+                flash.style.opacity = '0';
+                flash.addEventListener('transitionend', () => flash.remove());
+            }, 10000);
+            });
+        </script>
+</div>
+<div class="profile-header">
+
+    <div class="logo-section">
+        {% if profile.logo %}
+        <img id="logo-img" src="{{ profile.logo.url }}" alt="Logo">
+        {% else %}
+        <img id="logo-img" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Logo">
+        {% endif %}
+        {% if not employer.is_verified %}
+        <button class="btn-circle edit-btn" data-modal="modal-logo"><i class="fas fa-camera"></i></button>
+        {% endif %}
+    </div>
+
+  <!-- Company + Rep + Email -->
+  <div class="info-section">
+    <h1 class="company-name">
+      {{ employer.company_name }}
+        {% if employer.is_verified %}
+        <i class="fas fa-check-circle badge-verified"></i>
+        {% else %}
+            <i class="fas fa-times-circle badge-unverified"></i>
+        {% endif %}
+    </h1>
+    <p class="rep-name">Representative: {{ employer.representative_name }}</p>
+    <p class="email">
+      {{ employer.email }}
+      {% comment %} <button class="edit-icon" data-modal="modal-edit-top">
+        <i class="fas fa-edit"></i>
+      </button> {% endcomment %}
+    </p>
+    <br>
+    <!-- Verify Account -->
+    {% if not employer.is_verified %}
+        {% if profile.certificate %}
+        <!-- Already uploaded, now pending review -->
+        <strong style=" color:green;">Pending manual review of your document.....</strong>
+    {% else %}
+        <strong style=" color:red;">Verify your account to get access to all features</strong><br>
+        <button class="btn-verify" data-modal="modal-verify">
+        Verify Account
+        </button>
+        {% endif %}
+    {% endif %}
+  </div>
+
+  <!-- Toggle + Change Password -->
+  <div class="action-section">
+    <span>Email Notification</span>
+    <label class="switch">
+      
+      <input type="checkbox" id="toggle-notify" {% if employer.email_notify %}checked{% endif %}>
+      <span class="slider"></span>
+    </label>
+    <button class="btn-outline" data-modal="modal-password">
+      Change Password
+    </button>
+  </div>
+
+  
+</div>
+
+{# --- Modals for this section --- #}
+<!-- Edit Top Info -->
+<div id="modal-edit-top" class="modal">
+  <div class="modal-content">
+    <button class="modal-close">&times;</button>
+    <h3>Edit Company & Email</h3>
+    <form id="form-edit-top" method="post" action="{% url 'employer:profile_manage' %}">
+      {% csrf_token %}
+      <input type="hidden" name="section" value="top">
+      <label for="modal-company-name">Company Name <span class="required">*</span></label>
+      <input id="modal-company-name" type="text" name="company_name"
+             value="{{ employer.company_name }}" required>
+      <div class="error-text" id="error-company_name"></div>
+
+      <label for="modal-email">Email <span class="required">*</span></label>
+      <input id="modal-email" type="email" name="email"
+             value="{{ employer.email }}" required>
+      <div class="error-text" id="error-email"></div>
+
+      <div class="modal-buttons">
+        <button type="button" class="btn-cancel">Cancel</button>
+        <button type="submit" name="submit_top" class="btn-save" disabled>Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Change Password -->
+<div id="modal-password" class="modal">
+  <div class="modal-content">
+    <button class="modal-close">&times;</button>
+    <h3>Change Password</h3>
+    <form id="form-password" method="post" action="{% url 'employer:profile_manage' %}">
+      {% csrf_token %}
+      <input type="hidden" name="section" value="password">
+
+      <label for="old-password">Old Password <span class="required">*</span></label>
+      <input id="old-password" name="old_password" type="password" required>
+      <div class="error-text" id="error-old_password"></div>
+
+      <label for="new-password">New Password <span class="required">*</span></label>
+      <input id="new-password" name="new_password" type="password" required>
+      <div class="error-text" id="error-new_password"></div>
+
+      <label for="confirm-password">Confirm Password <span class="required">*</span></label>
+      <input id="confirm-password" name="confirm_password" type="password" required>
+      <div class="error-text" id="error-confirm_password"></div>
+
+      <div class="modal-buttons">
+        <button type="button" class="btn-cancel">Cancel</button>
+        <button type="submit" name="submit_password" class="btn-save" disabled>Change</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Verify Account -->
+<div id="modal-verify" class="modal">
+  <div class="modal-content">
+    <button class="modal-close">&times;</button>
+    <h3>Upload Verification Certificate</h3>
+    <form id="form-verify" method="post" enctype="multipart/form-data" action="{% url 'employer:profile_manage' %}">
+      {% csrf_token %}
+      <input type="hidden" name="section" value="verify">
+
+      <label for="modal-cert">Certificate (PDF/JPG, ≤2 MB) <span class="required">*</span></label>
+      <input id="modal-cert" name="certificate" type="file" accept="image/*,.pdf" required>
+      <div class="error-text" id="error-certificate"></div>
+       <div class="preview-wrapper">
+        <p>Preview:</p>
+        <img
+            id="preview-cert"
+            src="https://cdn-icons-png.flaticon.com/512/337/337946.png"
+            alt="Certificate Preview"
+        >
+        </div> 
+      <div class="modal-buttons">
+        <button type="button" class="btn-cancel">Cancel</button>
+        <button type="submit" name="submit_verify" class="btn-save" disabled>Upload</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Profile Picture Upload Modal -->
+<div id="modal-logo" class="modal">
+  <div class="modal-content">
+    <button class="modal-close">&times;</button>
+    <h3>Upload Profile Picture</h3>
+    <form id="form-logo" method="post" enctype="multipart/form-data" action="{% url 'employer:profile_manage' %}">
+      {% csrf_token %}
+      <input type="hidden" name="section" value="top">
+      <label for="modal-logo-input">Choose Image (JPEG/PNG, max 2 MB) <span class="required">*</span></label>
+      <input id="modal-logo-input" name="logo" type="file" accept="image/png,image/jpeg" required>
+      <div class="error-text" id="error-logo"></div>
+
+      <div class="preview-wrapper">
+        <p>Preview:</p>
+        <img id="preview-logo" src="{{ profile.logo|default:'https://cdn-icons-png.flaticon.com/512/3135/3135715.png' }}" alt="Logo Preview">
+      </div>
+
+      <div class="modal-buttons">
+        <button type="button" class="btn-cancel">Cancel</button>
+        <button type="submit" name="submit_logo" class="btn-save" disabled>Upload</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<div class="profile-body">
+<section id="details-section" class="details-form-section">
+  <h2>Company Details &amp; Location</h2>
+
+  {% if vals.company_size %}
+    <!-- Display Mode -->
+    <div class="details-display">
+      <div class="detail-row"><span class="label">Size:</span><span class="value">{{ vals.company_size }}</span></div>
+      <div class="detail-row"><span class="label">Founded:</span><span class="value">{{ vals.founded_date }}</span></div>
+      <div class="detail-row"><span class="label">Phone:</span><span class="value">{{ vals.phone_number }}</span></div>
+      <div class="detail-row"><span class="label">Address:</span><span class="value">{{ vals.address }}</span></div>
+      <div class="detail-row"><span class="label">Website:</span>
+        <span class="value">
+          {% if vals.website %}
+            <a href="{{ vals.website }}" target="_blank">{{ vals.website }}</a>
+          {% else %}–{% endif %}
+        </span>
+      </div>
+      <div class="detail-row"><span class="label">Facebook:</span>
+        <span class="value">
+          {% if vals.facebook %}
+            <a href="{{ vals.facebook }}" target="_blank">Link</a>
+          {% else %}–{% endif %}
+        </span>
+      </div>
+      <div class="detail-row"><span class="label">LinkedIn:</span>
+        <span class="value">
+          {% if vals.linkedin %}
+            <a href="{{ vals.linkedin }}" target="_blank">Link</a>
+          {% else %}–{% endif %}
+        </span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Description:</span>
+        <span class="value">
+          {{ vals.description|default:"–" }}
+        </span>
+      </div>
+      <button id="btn-edit-details" class="btn-edit-details">Edit Details</button>
+    </div>
+
+    <!-- Hidden Form for Editing -->
+    <form id="form-details" class="details-form" method="post" action="{% url 'employer:profile_manage' %}" style="display:none">
+      {% csrf_token %}
+      <input type="hidden" name="section" value="details">
+      <!-- same inputs as before, with values prefilled -->
+      <div class="form-group">
+        <label for="company_size">Company Size <span class="required">*</span></label>
+        <select id="company_size" name="company_size" required>
+          <option value="">– Select –</option>
+          {% for size in size_choices %}
+            <option value="{{ size }}" {% if vals.company_size == size %}selected{% endif %}>{{ size }}</option>
+          {% endfor %}
+        </select>
+        <small class="help-text">Select your company’s headcount range.</small>
+        <div class="error-text" id="error-company_size"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group half">
+          <label for="founded_date">Founded Date <span class="required">*</span></label>
+          <input id="founded_date" name="founded_date" type="date" value="{{ vals.founded_date }}" required>
+          <small class="help-text">When was your company established?</small>
+          <div class="error-text" id="error-founded_date"></div>
+        </div>
+        <div class="form-group half">
+          <label for="phone_number">Phone Number <span class="required">*</span></label>
+          <input id="phone_number" name="phone_number" type="tel" placeholder="9812345678" value="{{ vals.phone_number }}" required>
+          <small class="help-text">10–15 digits (Nepal code).</small>
+          <div class="error-text" id="error-phone_number"></div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="address">Full Address <span class="required">*</span></label>
+        <input id="address" name="address" type="text" placeholder="Street, City, Country" value="{{ vals.address }}" required>
+        <small class="help-text">Exact office address for map pin.</small>
+        <div class="error-text" id="error-address"></div>
+      </div>
+      <div class="form-group">
+        <label for="website">Website</label>
+        <input id="website" name="website" type="url" placeholder="https://example.com" value="{{ vals.website }}">
+        <small class="help-text">Include http:// or https://</small>
+        <div class="error-text" id="error-website"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group half">
+          <label for="facebook">Facebook URL</label>
+          <input id="facebook" name="facebook" type="url" placeholder="https://facebook.com/yourpage" value="{{ vals.facebook }}">
+          <small class="help-text">Optional social link.</small>
+          <div class="error-text" id="error-facebook"></div>
+        </div>
+        <div class="form-group half">
+          <label for="linkedin">LinkedIn URL</label>
+          <input id="linkedin" name="linkedin" type="url" placeholder="https://linkedin.com/company/..." value="{{ vals.linkedin }}">
+          <small class="help-text">Optional social link.</small>
+          <div class="error-text" id="error-linkedin"></div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="description">Description <span class="required">*</span></label>
+        <textarea
+          id="description" name="description" rows="4" required
+          placeholder="Briefly describe your company…"
+        >{{ vals.description|default:'' }}</textarea>
+        <small class="help-text">At least 20 characters describing your company.</small>
+        <div class="error-text" id="error-description"></div>
+      </div>
+
+      <div class="form-buttons">
+        <button type="button" class="btn-cancel-details">Cancel</button>
+        <button type="submit" name="submit_details" id="btn-save-details" class="btn-save-details" disabled>Save Changes</button>
+      </div>
+    </form>
+  {% else %}
+  <!-- No data yet: show form directly -->
+  <form id="form-details" class="details-form" method="post" action="{% url 'employer:profile_manage' %}">
+    {% csrf_token %}
+    <input type="hidden" name="section" value="details">
+
+    <div class="form-group">
+      <label for="company_size">Company Size <span class="required">*</span></label>
+      <select id="company_size" name="company_size" required>
+        <option value="">– Select –</option>
+        {% for size in size_choices %}
+          <option value="{{ size }}">{{ size }}</option>
+        {% endfor %}
+      </select>
+      <small class="help-text">Select your company’s headcount range.</small>
+      <div class="error-text" id="error-company_size"></div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group half">
+        <label for="founded_date">Founded Date <span class="required">*</span></label>
+        <input id="founded_date" name="founded_date" type="date" required>
+        <small class="help-text">When was your company established?</small>
+        <div class="error-text" id="error-founded_date"></div>
+      </div>
+      <div class="form-group half">
+        <label for="phone_number">Phone Number <span class="required">*</span></label>
+        <input id="phone_number" name="phone_number" type="tel" placeholder="e.g. 9812345678" required>
+        <small class="help-text">10–15 digits (Nepal code).</small>
+        <div class="error-text" id="error-phone_number"></div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="address">Full Address <span class="required">*</span></label>
+      <input id="address" name="address" type="text" placeholder="Street, City, Country" required>
+      <small class="help-text">Exact office address for map pin.</small>
+      <div class="error-text" id="error-address"></div>
+    </div>
+
+    <div class="form-group">
+      <label for="website">Website</label>
+      <input id="website" name="website" type="url" placeholder="https://example.com">
+      <small class="help-text">Include http:// or https://</small>
+      <div class="error-text" id="error-website"></div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group half">
+        <label for="facebook">Facebook URL</label>
+        <input id="facebook" name="facebook" type="url" placeholder="https://facebook.com/yourpage">
+        <small class="help-text">Optional social link.</small>
+        <div class="error-text" id="error-facebook"></div>
+      </div>
+      <div class="form-group half">
+        <label for="linkedin">LinkedIn URL</label>
+        <input id="linkedin" name="linkedin" type="url" placeholder="https://linkedin.com/company/...">
+        <small class="help-text">Optional social link.</small>
+        <div class="error-text" id="error-linkedin"></div>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label for="description">Description <span class="required">*</span></label>
+      <textarea
+        id="description" name="description" rows="4" required
+        placeholder="Briefly describe your company…"
+      >{{ vals.description|default:'' }}</textarea>
+      <small class="help-text">At least 20 characters describing your company.</small>
+      <div class="error-text" id="error-description"></div>
+    </div>
+
+    <div class="form-buttons">
+      <button type="submit" id="btn-save-details" name="submit_details" class="btn-save-details" disabled>
+        Save Details
+      </button>
+    </div>
+  </form>
+{% endif %}
+</section>
+</div>
+
+  {{ block.super }}
+  <section class="location-section">
+    <h3>Office Location</h3>
+
+    <!-- Map container -->
+    <div id="details-map" class="map-container"></div>
+
+    <!-- JSON script with initial coords -->
+    {{ employer.location|default:"{}"|json_script:"initialLocation" }}
+
+    <!-- Save button, disabled until marker moves -->
+    <button
+      id="save-location-btn"
+      class="btn-save disabled"
+      disabled
+    >Save Location</button>
+  </section>
+
+{% endblock content %}
+
+{% block script %}
+  {{ block.super }}
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // parse initial location
+    const initial = JSON.parse(document.getElementById('initialLocation').textContent || '{}');
+    const lat0 = initial.lat ?? 27.7152;
+    const lng0 = initial.lng ?? 85.3240;
+
+    // init map
+    const map = L.map('details-map').setView([lat0, lng0], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // draggable marker
+    const marker = L.marker([lat0, lng0], { draggable: true }).addTo(map);
+    const saveBtn = document.getElementById('save-location-btn');
+    let origLat = lat0, origLng = lng0;
+
+    // toggle Save button on drag end
+    marker.on('dragend', () => {
+      const { lat, lng } = marker.getLatLng();
+      const moved = Math.abs(lat - origLat) > 1e-6 || Math.abs(lng - origLng) > 1e-6;
+      saveBtn.disabled = !moved;
+      saveBtn.classList.toggle('disabled', !moved);
+    });
+
+    // POST new location
+    saveBtn.addEventListener('click', () => {
+      const { lat, lng } = marker.getLatLng();
+      fetch("{% url 'employer:update_employer_location' %}", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': (document.cookie
+             .split('; ')
+             .find(row => row.startsWith('csrftoken='))
+             ?.split('=')[1])
+        },
+        body: JSON.stringify({ lat, lng })
+      })
+      .then(r => r.json())
+      .then(j => {
+        if (j.status === 'ok') {
+          origLat = lat; origLng = lng;
+          saveBtn.disabled = true;
+          saveBtn.classList.add('disabled');
+          alert('Location updated.');
+        } else {
+          alert('Could not save location.');
+        }
+      })
+      .catch(() => alert('Network error.'));
+    });
+  });
+  </script>
+
+
+<script>
+    window.toggleNotifyUrl = "{% url 'employer:toggle_notify' %}";
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        for (const cookie of document.cookie.split(';')) {
+          const [key, val] = cookie.trim().split('=');
+          if (key === name) { cookieValue = decodeURIComponent(val); break; }
+        }
+      }
+      return cookieValue;
+    }
+  </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js"></script>
+<script src="{% static 'employer_profile/js/profile.js' %}"></script>
+
+{% endblock script %}

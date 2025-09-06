@@ -1,0 +1,82 @@
+.emp-premium-container {
+  max-width: 500px;
+  margin: 3rem auto;
+  text-align: center;
+}
+.emp-premium-title {
+  font-size: 2rem;
+  color: #b8860b;
+  margin-bottom: 1rem;
+}
+.emp-premium-card {
+  background: #f4f7fb;
+  border: 2px solid #daa520;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+.emp-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.emp-icon {
+  font-size: 2.5rem;
+  color: #daa520;
+}
+.emp-rate {
+  font-size: 1.75rem;
+  color: #8b7500;
+}
+.emp-rate span {
+  font-size: 1rem;
+}
+.emp-features {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+  text-align: left;
+}
+.emp-features li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.6rem 0;
+  font-size: 1rem;
+  color: #333;
+}
+.emp-features li i {
+  color: #daa520;
+}
+.btn-subscribe {
+  margin-top: 1rem;
+  background: #daa520;
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-subscribed {
+  margin-top: 1rem;
+  background: #9b0f88;
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-left: 2%;
+}
+.btn-subscribe:hover {
+  background: #356fad;
+}
+
+.btn-subscribed i {
+  margin-right: 0.5rem;
+}
